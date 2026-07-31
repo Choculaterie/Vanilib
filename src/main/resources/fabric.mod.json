@@ -1,0 +1,21 @@
+{
+    "schemaVersion": 1,
+    "id": "vanilib",
+    "version": "${version}",
+    "name": "Vanilib",
+    "description": "Shared UI component library for Choculaterie mods",
+    "authors": ["Choculat"],
+    "contact": {},
+    "license": "MIT",
+    "environment": "client",
+    "entrypoints": {
+        "client": ["com.choculaterie.vanilib.VanilibClient"]
+    },
+    "mixins": [{"config": "vanilib.client.mixins.json", "environment": "client"}],
+    "depends": {
+        "fabricloader": ">=0.18.5",
+        "minecraft": "~26.2",
+        "java": ">=25",
+        "fabric-api": "*"
+    }
+}
