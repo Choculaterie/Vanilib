@@ -3,7 +3,7 @@ package com.choculaterie.vanilib.gui.widget;
 import com.choculaterie.vanilib.config.ConfigOption;
 import com.choculaterie.vanilib.gui.theme.UITheme;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.input.CharacterEvent;
@@ -106,19 +106,19 @@ public class ConfigListWidget implements Renderable, GuiEventListener {
 	}
 
 	@Override
-	public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
-		searchField.extractRenderState(context, mouseX, mouseY, delta);
+	public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
+		searchField.render(context, mouseX, mouseY, delta);
 
 		context.enableScissor(x, getListY(), x + width, getListY() + getListHeight());
 		for (ConfigOptionWidget row : visibleRows) {
 			if (isRowVisible(row)) {
-				row.extractRenderState(context, mouseX, mouseY, delta);
+				row.render(context, mouseX, mouseY, delta);
 			}
 		}
 		context.disableScissor();
 
 		if (scrollBar.isVisible()) {
-			scrollBar.extractRenderState(context, mouseX, mouseY, delta);
+			scrollBar.render(context, mouseX, mouseY, delta);
 		}
 	}
 

@@ -3,7 +3,7 @@ package com.choculaterie.vanilib.gui.widget;
 import org.lwjgl.glfw.GLFW;
 import com.choculaterie.vanilib.gui.theme.UITheme;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 
@@ -105,7 +105,7 @@ public class DropdownWidget implements Renderable, GuiEventListener {
     }
 
     @Override
-    public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+    public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
         if (!isOpen || items.isEmpty()) return;
 
         int height = getDropdownHeight();
@@ -118,11 +118,11 @@ public class DropdownWidget implements Renderable, GuiEventListener {
         renderScrollbar(context, mouseX, mouseY, delta);
     }
 
-    private void drawBackground(GuiGraphicsExtractor context, int height, int renderWidth) {
+    private void drawBackground(GuiGraphics context, int height, int renderWidth) {
         context.fill(x, y, x + renderWidth, y + height, UITheme.Colors.PANEL_BG_SECONDARY);
     }
 
-    private void drawBorder(GuiGraphicsExtractor context, int height, int renderWidth) {
+    private void drawBorder(GuiGraphics context, int height, int renderWidth) {
         int borderColor = UITheme.Colors.BUTTON_BORDER;
         int borderWidth = UITheme.Dimensions.BORDER_WIDTH;
 
@@ -132,7 +132,7 @@ public class DropdownWidget implements Renderable, GuiEventListener {
         context.fill(x + renderWidth - borderWidth, y, x + renderWidth, y + height, borderColor);
     }
 
-    private void renderItems(GuiGraphicsExtractor context, int mouseX, int mouseY, int renderWidth) {
+    private void renderItems(GuiGraphics context, int mouseX, int mouseY, int renderWidth) {
         int contentY = y + UITheme.Dimensions.BORDER_WIDTH;
         int itemCount = Math.min(items.size(), MAX_VISIBLE_ITEMS);
         int visibleItemsHeight = itemCount * ITEM_HEIGHT;
@@ -156,7 +156,7 @@ public class DropdownWidget implements Renderable, GuiEventListener {
         context.disableScissor();
     }
 
-    private void renderSingleItem(GuiGraphicsExtractor context, int mouseX, int mouseY, int index, int itemY, int itemRightEdge) {
+    private void renderSingleItem(GuiGraphics context, int mouseX, int mouseY, int index, int itemY, int itemRightEdge) {
         DropdownItem item = items.get(index);
         boolean isHovered = mouseX >= x && mouseX < itemRightEdge &&
                           mouseY >= itemY && mouseY < itemY + ITEM_HEIGHT;
@@ -179,7 +179,7 @@ public class DropdownWidget implements Renderable, GuiEventListener {
         renderItemText(context, item, itemX, itemY, itemWidth);
     }
 
-    private void renderItemText(GuiGraphicsExtractor context, DropdownItem item, int itemX, int itemY, int itemWidth) {
+    private void renderItemText(GuiGraphics context, DropdownItem item, int itemX, int itemY, int itemWidth) {
         String displayText = item.getDisplayText();
         int textX = itemX + UITheme.Dimensions.PADDING + 2;
         int textY = itemY + (ITEM_HEIGHT - client.font.lineHeight) / 2;
@@ -189,10 +189,10 @@ public class DropdownWidget implements Renderable, GuiEventListener {
             displayText = client.font.plainSubstrByWidth(displayText, maxTextWidth - 10) + "...";
         }
 
-        context.text(client.font, displayText, textX, textY, UITheme.Colors.TEXT_PRIMARY, false);
+        context.drawString(client.font, displayText, textX, textY, UITheme.Colors.TEXT_PRIMARY, false);
     }
 
-    private void renderStatusMessage(GuiGraphicsExtractor context, int renderWidth) {
+    private void renderStatusMessage(GuiGraphics context, int renderWidth) {
         if (statusMessage.isEmpty()) return;
 
         int itemCount = Math.min(items.size(), MAX_VISIBLE_ITEMS);
@@ -216,7 +216,7 @@ public class DropdownWidget implements Renderable, GuiEventListener {
         int statusTextX = x + (renderWidth - finalStatusWidth) / 2;
         int statusTextY = statusY + UITheme.Dimensions.BORDER_WIDTH + (ITEM_HEIGHT - client.font.lineHeight) / 2;
 
-        context.text(client.font, displayStatus, statusTextX, statusTextY, statusColor, false);
+        context.drawString(client.font, displayStatus, statusTextX, statusTextY, statusColor, false);
     }
 
     private int getStatusColor() {
@@ -237,7 +237,7 @@ public class DropdownWidget implements Renderable, GuiEventListener {
         return UITheme.Colors.TEXT_PRIMARY;
     }
 
-    private void renderScrollbar(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+    private void renderScrollbar(GuiGraphics context, int mouseX, int mouseY, float delta) {
         if (items.size() <= MAX_VISIBLE_ITEMS) return;
 
         int renderWidth = getRenderWidth();
