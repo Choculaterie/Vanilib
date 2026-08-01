@@ -3,7 +3,7 @@ package com.choculaterie.vanilib.gui.screen;
 import com.choculaterie.vanilib.gui.widget.CustomButton;
 import com.choculaterie.vanilib.gui.widget.ScrollBar;
 import com.choculaterie.vanilib.gui.widget.ToastManager;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
@@ -30,6 +30,9 @@ public class DirectoryPickerScreen extends Screen {
 	private ScrollBar scrollBar;
 	private int selectedIndex = -1;
 	private ToastManager toastManager;
+	private long lastClickTime = 0;
+	private int lastClickedIndex = -1;
+	private static final long DOUBLE_CLICK_MS = 250;
 
 	public DirectoryPickerScreen(Screen parentScreen, File startDirectory, File baseDirectory, Consumer<String> onPathSelected) {
 		super(Component.literal("Select Directory"));
@@ -174,13 +177,13 @@ public class DirectoryPickerScreen extends Screen {
 	}
 
 	@Override
-	public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+	public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
 		context.fill(0, 0, this.width, this.height, 0xFF202020);
 
-		super.extractRenderState(context, mouseX, mouseY, delta);
+		super.render(context, mouseX, mouseY, delta);
 
 		String currentPath = currentDirectory != null ? currentDirectory.getAbsolutePath() : "";
-		context.text(this.font, "Current: " + currentPath, PADDING, PADDING * 3 + BUTTON_HEIGHT, 0xFFFFFFFF);
+		context.drawString(this.font, "Current: " + currentPath, PADDING, PADDING * 3 + BUTTON_HEIGHT, 0xFFFFFFFF);
 
 		int listY = getListY();
 		int listHeight = getListHeight();
@@ -199,7 +202,7 @@ public class DirectoryPickerScreen extends Screen {
 
 			int bgColor = isSelected ? 0xFF404040 : (isHovered ? 0xFF2A2A2A : 0xFF1A1A1A);
 			context.fill(PADDING + 2, itemY + 2, listRightEdge - 2, itemY + ITEM_HEIGHT - 2, bgColor);
-			context.text(this.font, "📁 " + dir.getName(), PADDING + 5, itemY + 8, 0xFFFFFFFF);
+			context.drawString(this.font, "📁 " + dir.getName(), PADDING + 5, itemY + 8, 0xFFFFFFFF);
 		}
 
 		context.disableScissor();
@@ -218,12 +221,8 @@ public class DirectoryPickerScreen extends Screen {
 	}
 
 	@Override
-	public boolean mouseClicked(net.minecraft.client.input.MouseButtonEvent click, boolean doubled) {
-		double mouseX = click.x();
-		double mouseY = click.y();
-		int button = click.button();
-
-		if (super.mouseClicked(click, doubled)) {
+	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+		if (super.mouseClicked(mouseX, mouseY, button)) {
 			return true;
 		}
 
@@ -234,6 +233,11 @@ public class DirectoryPickerScreen extends Screen {
 		if (mouseX >= PADDING && mouseX < listRightEdge && mouseY >= listY && mouseY < listY + listHeight) {
 			int clickedIndex = scrollOffset + (int) ((mouseY - listY) / ITEM_HEIGHT);
 			if (clickedIndex >= 0 && clickedIndex < directories.size() && button == 0) {
+				long now = System.currentTimeMillis();
+				boolean doubled = clickedIndex == lastClickedIndex && now - lastClickTime <= DOUBLE_CLICK_MS;
+				lastClickedIndex = clickedIndex;
+				lastClickTime = now;
+
 				if (clickedIndex == selectedIndex && doubled) {
 					currentDirectory = directories.get(clickedIndex);
 					loadDirectories();
@@ -261,7 +265,7 @@ public class DirectoryPickerScreen extends Screen {
 	@Override
 	public void onClose() {
 		if (this.minecraft != null) {
-			this.minecraft.gui.setScreen(parentScreen);
+			this.minecraft.setScreen(parentScreen);
 		}
 	}
 

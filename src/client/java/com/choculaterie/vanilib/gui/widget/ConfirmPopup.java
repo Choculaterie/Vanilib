@@ -2,7 +2,7 @@ package com.choculaterie.vanilib.gui.widget;
 
 import com.choculaterie.vanilib.gui.theme.UITheme;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
@@ -143,7 +143,7 @@ public class ConfirmPopup implements Renderable, GuiEventListener {
     }
 
     @Override
-    public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+    public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
         Minecraft client = Minecraft.getInstance();
         long windowHandle = GLFW.glfwGetCurrentContext();
 
@@ -172,7 +172,7 @@ public class ConfirmPopup implements Renderable, GuiEventListener {
         context.fill(x, y, x + UITheme.Dimensions.BORDER_WIDTH, y + popupHeight, UITheme.Colors.BUTTON_BORDER);
         context.fill(x + POPUP_WIDTH - UITheme.Dimensions.BORDER_WIDTH, y, x + POPUP_WIDTH, y + popupHeight, UITheme.Colors.BUTTON_BORDER);
 
-        context.centeredText(
+        context.drawCenteredString(
                 client.font,
                 title,
                 x + POPUP_WIDTH / 2,
@@ -188,7 +188,7 @@ public class ConfirmPopup implements Renderable, GuiEventListener {
         int messageY = messageAreaY - (int)scrollOffset;
         for (String line : wrappedMessage) {
             if (messageY + UITheme.Typography.LINE_HEIGHT >= messageAreaY && messageY < messageAreaY + messageAreaHeight) {
-                context.text(
+                context.drawString(
                         client.font,
                         line,
                         x + UITheme.Dimensions.PADDING,
@@ -212,10 +212,10 @@ public class ConfirmPopup implements Renderable, GuiEventListener {
         }
 
         if (cancelButton != null) {
-            cancelButton.extractRenderState(context, mouseX, mouseY, delta);
+            cancelButton.render(context, mouseX, mouseY, delta);
         }
         if (confirmButton != null) {
-            confirmButton.extractRenderState(context, mouseX, mouseY, delta);
+            confirmButton.render(context, mouseX, mouseY, delta);
         }
     }
 

@@ -3,7 +3,7 @@ package com.choculaterie.vanilib.gui.widget;
 import com.choculaterie.vanilib.gui.theme.UITheme;
 import com.choculaterie.vanilib.models.ModMessage;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 
@@ -87,7 +87,7 @@ public class ModMessageBanner implements Renderable, GuiEventListener {
     }
 
     @Override
-    public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+    public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
         if (!visible || message == null || !message.hasMessage()) {
             return;
         }
@@ -100,16 +100,16 @@ public class ModMessageBanner implements Renderable, GuiEventListener {
         drawCloseButton(context, mouseX, mouseY);
     }
 
-    private void drawBackground(GuiGraphicsExtractor context, int bgColor) {
+    private void drawBackground(GuiGraphics context, int bgColor) {
         context.fill(x, y, x + width, y + BANNER_HEIGHT, bgColor);
     }
 
-    private void drawBorder(GuiGraphicsExtractor context) {
+    private void drawBorder(GuiGraphics context) {
         context.fill(x, y + BANNER_HEIGHT - UITheme.Dimensions.BORDER_WIDTH,
                     x + width, y + BANNER_HEIGHT, UITheme.Colors.DIVIDER);
     }
 
-    private void drawMessageText(GuiGraphicsExtractor context) {
+    private void drawMessageText(GuiGraphics context) {
         String text = message.message();
         if (text == null) return;
 
@@ -117,7 +117,7 @@ public class ModMessageBanner implements Renderable, GuiEventListener {
         text = truncateText(text, maxTextWidth);
 
         int textY = y + (BANNER_HEIGHT - UITheme.Typography.TEXT_HEIGHT) / 2;
-        context.text(client.font, text, x + UITheme.Dimensions.PADDING, textY, UITheme.Colors.TEXT_PRIMARY);
+        context.drawString(client.font, text, x + UITheme.Dimensions.PADDING, textY, UITheme.Colors.TEXT_PRIMARY);
     }
 
     private String truncateText(String text, int maxWidth) {
@@ -131,7 +131,7 @@ public class ModMessageBanner implements Renderable, GuiEventListener {
         return text + "...";
     }
 
-    private void drawCloseButton(GuiGraphicsExtractor context, int mouseX, int mouseY) {
+    private void drawCloseButton(GuiGraphics context, int mouseX, int mouseY) {
         int closeX = getCloseButtonX();
         int closeY = getCloseButtonY();
 
@@ -141,7 +141,7 @@ public class ModMessageBanner implements Renderable, GuiEventListener {
 
         String closeText = "✕";
         int closeTextWidth = client.font.width(closeText);
-        context.text(client.font, closeText,
+        context.drawString(client.font, closeText,
                 closeX + (CLOSE_BUTTON_SIZE - closeTextWidth) / 2,
                 closeY + (CLOSE_BUTTON_SIZE - UITheme.Typography.TEXT_HEIGHT) / 2,
                 UITheme.Colors.TEXT_PRIMARY);

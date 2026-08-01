@@ -1,6 +1,6 @@
 package com.choculaterie.vanilib.gui.widget;
 
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
 
 public class LoadingSpinner implements Renderable {
@@ -31,7 +31,7 @@ public class LoadingSpinner implements Renderable {
 	}
 
 	@Override
-	public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+	public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
 		animationTime += FADE_SPEED;
 		if (animationTime >= NUM_BLOCKS) {
 			animationTime -= NUM_BLOCKS;
