@@ -6,7 +6,7 @@ import com.choculaterie.vanilib.network.AccountLinkingApi;
 import com.choculaterie.vanilib.network.AccountLinkingContext;
 import com.google.gson.JsonObject;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
@@ -64,35 +64,35 @@ public class AccountLinkingScreen extends Screen {
 	}
 
 	@Override
-	public void extractRenderState(GuiGraphicsExtractor renderContext, int mouseX, int mouseY, float delta) {
-		super.extractRenderState(renderContext, mouseX, mouseY, delta);
+	public void render(GuiGraphics renderContext, int mouseX, int mouseY, float delta) {
+		super.render(renderContext, mouseX, mouseY, delta);
 		int cx = this.width / 2;
 		int btnY = this.height / 2 - 10;
 
-		renderContext.centeredText(font, title, cx, 10, 0xFFFFFFFF);
+		renderContext.drawCenteredString(font, title, cx, 10, 0xFFFFFFFF);
 
 		boolean hasKey = context.hasApiKey();
 		if (hasKey && !isLinking) {
-			renderContext.centeredText(font, Component.literal("§aAccount linked ✓"), cx, btnY - 20, 0xFFFFFFFF);
-			renderContext.centeredText(font, Component.literal("Reset to unlink and connect a different account."),
+			renderContext.drawCenteredString(font, Component.literal("§aAccount linked ✓"), cx, btnY - 20, 0xFFFFFFFF);
+			renderContext.drawCenteredString(font, Component.literal("Reset to unlink and connect a different account."),
 				cx, btnY + 30, 0xFF888888);
 		} else if (!isLinking) {
 			int stepY = btnY + 32, lineH = 12;
-			renderContext.centeredText(font, Component.literal("How it works:"), cx, stepY, 0xFF999999);
+			renderContext.drawCenteredString(font, Component.literal("How it works:"), cx, stepY, 0xFF999999);
 			stepY += lineH + 4;
-			renderContext.centeredText(font, Component.literal("1. A browser window will open. Sign in and click Approve."),
+			renderContext.drawCenteredString(font, Component.literal("1. A browser window will open. Sign in and click Approve."),
 				cx, stepY, 0xFFCCCCCC);
 			stepY += lineH;
-			renderContext.centeredText(font, Component.literal("2. The game will briefly join a server to verify your Minecraft account."),
+			renderContext.drawCenteredString(font, Component.literal("2. The game will briefly join a server to verify your Minecraft account."),
 				cx, stepY, 0xFFCCCCCC);
 			stepY += lineH;
-			renderContext.centeredText(font, Component.literal("3. " + context.getCompletionText()), cx, stepY, 0xFFCCCCCC);
+			renderContext.drawCenteredString(font, Component.literal("3. " + context.getCompletionText()), cx, stepY, 0xFFCCCCCC);
 		} else {
 			if (!linkingStatus.isEmpty()) {
-				renderContext.centeredText(font, Component.literal(linkingStatus), cx, btnY - 20, 0xFF88FF88);
+				renderContext.drawCenteredString(font, Component.literal(linkingStatus), cx, btnY - 20, 0xFF88FF88);
 			}
 			if (pendingAuthUrl != null) {
-				renderContext.centeredText(font, Component.literal("Browser didn't open? Copy the URL and paste it manually."),
+				renderContext.drawCenteredString(font, Component.literal("Browser didn't open? Copy the URL and paste it manually."),
 					cx, btnY + 30, 0xFF888888);
 			}
 		}
@@ -113,7 +113,7 @@ public class AccountLinkingScreen extends Screen {
 	private void handleLinkOrReset(boolean hadKey) {
 		if (hadKey) {
 			context.clearApiKey();
-			minecraft.gui.setScreen(new AccountLinkingScreen(parent, context, api));
+			minecraft.setScreen(new AccountLinkingScreen(parent, context, api));
 		} else {
 			startOAuthFlow();
 		}
@@ -156,7 +156,7 @@ public class AccountLinkingScreen extends Screen {
 					if (copyUrlBtn != null) copyUrlBtn.visible = true;
 					linkingStatus = "Waiting for approval...";
 					try {
-						net.minecraft.util.Util.getPlatform().openUri(new java.net.URI(authUrl));
+						net.minecraft.Util.getPlatform().openUri(new java.net.URI(authUrl));
 					} catch (Exception ignored) {}
 				});
 				startPolling(currentFlowId, expiresIn);

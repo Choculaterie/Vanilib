@@ -6,12 +6,10 @@ import com.choculaterie.vanilib.config.ConfigType;
 import com.choculaterie.vanilib.config.OptionListConfig;
 import com.choculaterie.vanilib.gui.theme.UITheme;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.input.CharacterEvent;
-import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
@@ -137,22 +135,22 @@ public class ConfigOptionWidget implements Renderable, GuiEventListener {
 	}
 
 	@Override
-	public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+	public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
 		int textY = y + (height - UITheme.Typography.TEXT_HEIGHT) / 2;
-		context.text(client.font, config.getName(), x, textY, UITheme.Colors.TEXT_PRIMARY);
+		context.drawString(client.font, config.getName(), x, textY, UITheme.Colors.TEXT_PRIMARY);
 
 		switch (config.getType()) {
-			case BOOLEAN -> toggleButton.extractRenderState(context, mouseX, mouseY, delta);
+			case BOOLEAN -> toggleButton.render(context, mouseX, mouseY, delta);
 			case OPTION_LIST -> {
-				dropdownHeaderButton.extractRenderState(context, mouseX, mouseY, delta);
-				dropdownWidget.extractRenderState(context, mouseX, mouseY, delta);
+				dropdownHeaderButton.render(context, mouseX, mouseY, delta);
+				dropdownWidget.render(context, mouseX, mouseY, delta);
 			}
-			case INTEGER, DOUBLE, STRING -> textField.extractRenderState(context, mouseX, mouseY, delta);
+			case INTEGER, DOUBLE, STRING -> textField.render(context, mouseX, mouseY, delta);
 		}
 
 		resetButton.visible = config.isModified();
 		if (resetButton.visible) {
-			resetButton.extractRenderState(context, mouseX, mouseY, delta);
+			resetButton.render(context, mouseX, mouseY, delta);
 		}
 	}
 
@@ -205,13 +203,13 @@ public class ConfigOptionWidget implements Renderable, GuiEventListener {
 	}
 
 	@Override
-	public boolean keyPressed(KeyEvent event) {
-		return isTextFieldType() && textField.isFocused() && textField.keyPressed(event);
+	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+		return isTextFieldType() && textField.isFocused() && textField.keyPressed(keyCode, scanCode, modifiers);
 	}
 
 	@Override
-	public boolean charTyped(CharacterEvent event) {
-		return isTextFieldType() && textField.isFocused() && textField.charTyped(event);
+	public boolean charTyped(char codePoint, int modifiers) {
+		return isTextFieldType() && textField.isFocused() && textField.charTyped(codePoint, modifiers);
 	}
 
 	@Override
