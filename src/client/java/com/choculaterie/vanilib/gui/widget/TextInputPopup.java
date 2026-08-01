@@ -2,7 +2,7 @@ package com.choculaterie.vanilib.gui.widget;
 
 import com.choculaterie.vanilib.gui.theme.UITheme;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -175,7 +175,7 @@ public class TextInputPopup implements Renderable, GuiEventListener {
     }
 
     @Override
-    public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+    public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
         handleEscapeKey();
 
         Minecraft client = Minecraft.getInstance();
@@ -186,7 +186,7 @@ public class TextInputPopup implements Renderable, GuiEventListener {
 
         if (textField != null) {
             textField.setFocused(true);
-            textField.extractRenderState(context, mouseX, mouseY, delta);
+            textField.render(context, mouseX, mouseY, delta);
         }
 
         if (!errorMessage.isEmpty()) {
@@ -194,11 +194,11 @@ public class TextInputPopup implements Renderable, GuiEventListener {
         }
 
         if (cancelButton != null) {
-            cancelButton.extractRenderState(context, mouseX, mouseY, delta);
+            cancelButton.render(context, mouseX, mouseY, delta);
         }
 
         if (confirmButton != null) {
-            confirmButton.extractRenderState(context, mouseX, mouseY, delta);
+            confirmButton.render(context, mouseX, mouseY, delta);
         }
     }
 
@@ -216,11 +216,11 @@ public class TextInputPopup implements Renderable, GuiEventListener {
         }
     }
 
-    private void drawOverlay(GuiGraphicsExtractor context, Minecraft client) {
+    private void drawOverlay(GuiGraphics context, Minecraft client) {
         context.fill(0, 0, client.getWindow().getGuiScaledWidth(), client.getWindow().getGuiScaledHeight(), UITheme.Colors.OVERLAY_BG);
     }
 
-    private void drawPopupBackground(GuiGraphicsExtractor context) {
+    private void drawPopupBackground(GuiGraphics context) {
         context.fill(x, y, x + POPUP_WIDTH, y + POPUP_HEIGHT, UITheme.Colors.BUTTON_BG_DISABLED);
         context.fill(x, y, x + POPUP_WIDTH, y + UITheme.Dimensions.BORDER_WIDTH, UITheme.Colors.BUTTON_BORDER);
         context.fill(x, y + POPUP_HEIGHT - UITheme.Dimensions.BORDER_WIDTH, x + POPUP_WIDTH, y + POPUP_HEIGHT, UITheme.Colors.BUTTON_BORDER);
@@ -228,8 +228,8 @@ public class TextInputPopup implements Renderable, GuiEventListener {
         context.fill(x + POPUP_WIDTH - UITheme.Dimensions.BORDER_WIDTH, y, x + POPUP_WIDTH, y + POPUP_HEIGHT, UITheme.Colors.BUTTON_BORDER);
     }
 
-    private void drawTitle(GuiGraphicsExtractor context, Minecraft client) {
-        context.centeredText(
+    private void drawTitle(GuiGraphics context, Minecraft client) {
+        context.drawCenteredString(
                 client.font,
                 title,
                 x + POPUP_WIDTH / 2,
@@ -238,12 +238,12 @@ public class TextInputPopup implements Renderable, GuiEventListener {
         );
     }
 
-    private void drawErrorMessage(GuiGraphicsExtractor context, Minecraft client) {
+    private void drawErrorMessage(GuiGraphics context, Minecraft client) {
         List<String> wrappedError = wrapText(errorMessage, POPUP_WIDTH - UITheme.Dimensions.PADDING * 2, client);
         int errorY = y + UITheme.Dimensions.PADDING * 3 + 25;
 
         for (String line : wrappedError) {
-            context.centeredText(
+            context.drawCenteredString(
                     client.font,
                     line,
                     x + POPUP_WIDTH / 2,

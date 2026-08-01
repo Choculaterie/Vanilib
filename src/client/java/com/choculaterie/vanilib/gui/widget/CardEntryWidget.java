@@ -3,7 +3,7 @@ package com.choculaterie.vanilib.gui.widget;
 import com.choculaterie.vanilib.gui.theme.UITheme;
 import com.choculaterie.vanilib.util.FormatUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 
@@ -84,16 +84,16 @@ public class CardEntryWidget<T> implements Renderable, GuiEventListener {
 		return (text == null || text.isEmpty()) ? List.of("") : FormatUtils.wrapText(client.font, text, maxWidth);
 	}
 
-	private void drawWrappedText(GuiGraphicsExtractor context, String text, int textX, int textY, int maxWidth, int color) {
+	private void drawWrappedText(GuiGraphics context, String text, int textX, int textY, int maxWidth, int color) {
 		int lineY = textY;
 		for (String line : wrappedLines(text, maxWidth)) {
-			context.text(client.font, line, textX, lineY, color);
+			context.drawString(client.font, line, textX, lineY, color);
 			lineY += LINE_HEIGHT;
 		}
 	}
 
 	@Override
-	public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+	public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
 		hovered = mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + calculatedHeight;
 
 		int bgColor = hovered ? UITheme.Colors.BUTTON_BG_HOVER : UITheme.Colors.BUTTON_BG;
