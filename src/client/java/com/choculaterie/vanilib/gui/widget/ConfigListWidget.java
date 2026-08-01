@@ -3,11 +3,9 @@ package com.choculaterie.vanilib.gui.widget;
 import com.choculaterie.vanilib.config.ConfigOption;
 import com.choculaterie.vanilib.gui.theme.UITheme;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.input.CharacterEvent;
-import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
@@ -106,19 +104,19 @@ public class ConfigListWidget implements Renderable, GuiEventListener {
 	}
 
 	@Override
-	public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
-		searchField.extractRenderState(context, mouseX, mouseY, delta);
+	public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
+		searchField.render(context, mouseX, mouseY, delta);
 
 		context.enableScissor(x, getListY(), x + width, getListY() + getListHeight());
 		for (ConfigOptionWidget row : visibleRows) {
 			if (isRowVisible(row)) {
-				row.extractRenderState(context, mouseX, mouseY, delta);
+				row.render(context, mouseX, mouseY, delta);
 			}
 		}
 		context.disableScissor();
 
 		if (scrollBar.isVisible()) {
-			scrollBar.extractRenderState(context, mouseX, mouseY, delta);
+			scrollBar.render(context, mouseX, mouseY, delta);
 		}
 	}
 
@@ -156,26 +154,26 @@ public class ConfigListWidget implements Renderable, GuiEventListener {
 	}
 
 	@Override
-	public boolean keyPressed(KeyEvent event) {
+	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
 		if (searchField.isFocused()) {
-			return searchField.keyPressed(event);
+			return searchField.keyPressed(keyCode, scanCode, modifiers);
 		}
 		for (ConfigOptionWidget row : visibleRows) {
 			if (row.isFocused()) {
-				return row.keyPressed(event);
+				return row.keyPressed(keyCode, scanCode, modifiers);
 			}
 		}
 		return false;
 	}
 
 	@Override
-	public boolean charTyped(CharacterEvent event) {
+	public boolean charTyped(char codePoint, int modifiers) {
 		if (searchField.isFocused()) {
-			return searchField.charTyped(event);
+			return searchField.charTyped(codePoint, modifiers);
 		}
 		for (ConfigOptionWidget row : visibleRows) {
 			if (row.isFocused()) {
-				return row.charTyped(event);
+				return row.charTyped(codePoint, modifiers);
 			}
 		}
 		return false;

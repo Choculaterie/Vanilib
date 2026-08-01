@@ -3,7 +3,7 @@ package com.choculaterie.vanilib.gui.widget;
 import com.choculaterie.vanilib.gui.theme.UITheme;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 
 public class CustomButton extends Button {
@@ -24,7 +24,7 @@ public class CustomButton extends Button {
     }
 
     @Override
-    protected void extractContents(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+    protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
         int bgColor = getBackgroundColor(mouseX, mouseY);
         drawBackground(context, bgColor);
         drawBorder(context);
@@ -42,12 +42,12 @@ public class CustomButton extends Button {
         return isHovered ? UITheme.Colors.BUTTON_BG_HOVER : UITheme.Colors.BUTTON_BG;
     }
 
-    private void drawBackground(GuiGraphicsExtractor context, int color) {
+    private void drawBackground(GuiGraphics context, int color) {
         context.fill(this.getX(), this.getY(), this.getX() + this.getWidth(),
                     this.getY() + this.getHeight(), color);
     }
 
-    private void drawBorder(GuiGraphicsExtractor context) {
+    private void drawBorder(GuiGraphics context) {
         int x1 = this.getX();
         int y1 = this.getY();
         int x2 = x1 + this.getWidth();
@@ -61,7 +61,7 @@ public class CustomButton extends Button {
         context.fill(x2 - borderWidth, y1, x2, y2, borderColor);
     }
 
-    private void drawText(GuiGraphicsExtractor context) {
+    private void drawText(GuiGraphics context) {
         Font tr = Minecraft.getInstance().font;
         int textColor = this.active ? UITheme.Colors.TEXT_PRIMARY : UITheme.Colors.TEXT_DISABLED;
 
@@ -71,7 +71,7 @@ public class CustomButton extends Button {
         int centerX = this.getX() + this.getWidth() / 2;
         int centerY = this.getY() + (this.getHeight() - UITheme.Typography.TEXT_HEIGHT) / 2 + yOffset;
 
-        context.centeredText(tr, text, centerX, centerY, textColor);
+        context.drawCenteredString(tr, text, centerX, centerY, textColor);
     }
 
     private String getDisplayText() {

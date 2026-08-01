@@ -2,7 +2,7 @@ package com.choculaterie.vanilib.gui.widget;
 
 import com.choculaterie.vanilib.gui.theme.UITheme;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
@@ -116,12 +116,12 @@ public class CustomTextField extends EditBox {
 	}
 
 	@Override
-	public boolean keyPressed(net.minecraft.client.input.KeyEvent event) {
+	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
 		return this.isFocused();
 	}
 
 	@Override
-	public void extractWidgetRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+	public void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
 		handleMouseInput(mouseX, mouseY);
 		handleKeyboardInput();
 
@@ -276,13 +276,13 @@ public class CustomTextField extends EditBox {
 		}
 	}
 
-	private void drawBackground(GuiGraphicsExtractor context) {
+	private void drawBackground(GuiGraphics context) {
 		context.fill(this.getX(), this.getY(),
 				this.getX() + this.getWidth(), this.getY() + this.getHeight(),
 				UITheme.Colors.FIELD_BG);
 	}
 
-	private void drawBorder(GuiGraphicsExtractor context) {
+	private void drawBorder(GuiGraphics context) {
 		int borderColor = this.isFocused() ? UITheme.Colors.FIELD_BORDER_FOCUSED : UITheme.Colors.FIELD_BORDER;
 		int borderWidth = UITheme.Dimensions.BORDER_WIDTH;
 		int x = this.getX();
@@ -296,7 +296,7 @@ public class CustomTextField extends EditBox {
 		context.fill(x + width - borderWidth, y, x + width, y + height, borderColor);
 	}
 
-	private void drawTextContent(GuiGraphicsExtractor context, int mouseX, int mouseY) {
+	private void drawTextContent(GuiGraphics context, int mouseX, int mouseY) {
 		int textY = this.getY() + (this.getHeight() - UITheme.Typography.TEXT_HEIGHT) / 2;
 		int textX = this.getX() + TEXT_PADDING;
 
@@ -310,20 +310,20 @@ public class CustomTextField extends EditBox {
 		}
 	}
 
-	private void drawPlaceholder(GuiGraphicsExtractor context, int x, int y) {
+	private void drawPlaceholder(GuiGraphics context, int x, int y) {
 		if (placeholderText != null) {
-			context.text(client.font, placeholderText, x, y, UITheme.Colors.TEXT_MUTED);
+			context.drawString(client.font, placeholderText, x, y, UITheme.Colors.TEXT_MUTED);
 		}
 	}
 
-	private void drawActiveText(GuiGraphicsExtractor context, String text, int textX, int textY, int maxTextWidth) {
+	private void drawActiveText(GuiGraphics context, String text, int textX, int textY, int maxTextWidth) {
 		int color = this.isFocused() ? UITheme.Colors.TEXT_PRIMARY : UITheme.Colors.TEXT_SUBTITLE;
 
 		context.enableScissor(textX, this.getY(), textX + maxTextWidth, this.getY() + this.getHeight());
 		if (this.isFocused() && !this.getHighlighted().isEmpty()) {
 			drawSelectionHighlight(context, text, textX, textY);
 		}
-		context.text(client.font, text, textX, textY, color);
+		context.drawString(client.font, text, textX, textY, color);
 		context.disableScissor();
 
 		if (this.isFocused() && this.isActive()) {
@@ -331,12 +331,12 @@ public class CustomTextField extends EditBox {
 		}
 	}
 
-	private void drawSelectionHighlight(GuiGraphicsExtractor context, String text, int textX, int textY) {
+	private void drawSelectionHighlight(GuiGraphics context, String text, int textX, int textY) {
 		int highlightWidth = client.font.width(text);
 		context.fill(textX, textY - 1, textX + highlightWidth, textY + 9, UITheme.Colors.SELECTION_HIGHLIGHT);
 	}
 
-	private void drawCursor(GuiGraphicsExtractor context, String text, int textX, int textY) {
+	private void drawCursor(GuiGraphics context, String text, int textX, int textY) {
 		if ((System.currentTimeMillis() / CURSOR_BLINK_MS) % 2 == 0) {
 			int cursorPos = this.getCursorPosition();
 			String beforeCursor = text.substring(0, Math.min(cursorPos, text.length()));
@@ -346,7 +346,7 @@ public class CustomTextField extends EditBox {
 		}
 	}
 
-	private void drawClearButton(GuiGraphicsExtractor context, int mouseX, int mouseY) {
+	private void drawClearButton(GuiGraphics context, int mouseX, int mouseY) {
 		if (this.getValue().isEmpty())
 			return;
 
@@ -359,7 +359,7 @@ public class CustomTextField extends EditBox {
 		int xWidth = client.font.width(xSymbol);
 		int xX = clearX + (CLEAR_BUTTON_SIZE - xWidth) / 2;
 		int xY = clearY + (CLEAR_BUTTON_SIZE - UITheme.Typography.TEXT_HEIGHT) / 2;
-		context.text(client.font, xSymbol, xX, xY, clearColor);
+		context.drawString(client.font, xSymbol, xX, xY, clearColor);
 	}
 
 	private boolean isOverClearButton(int mouseX, int mouseY) {
