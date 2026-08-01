@@ -1,7 +1,7 @@
 package com.choculaterie.vanilib.gui.widget;
 
 import com.choculaterie.vanilib.gui.theme.UITheme;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 
@@ -86,7 +86,7 @@ public class CardListWidget<T> implements Renderable, GuiEventListener {
 	}
 
 	@Override
-	public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+	public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
 		context.enableScissor(x, y, x + width, y + height);
 
 		int offsetY = (int) scrollAmount;
@@ -98,14 +98,14 @@ public class CardListWidget<T> implements Renderable, GuiEventListener {
 				entry.setX(x);
 				entry.setY(entryY);
 				entry.setWidth(entryWidth);
-				entry.extractRenderState(context, mouseX, mouseY, delta);
+				entry.render(context, mouseX, mouseY, delta);
 			}
 			currentY += entry.getHeight() + ENTRY_SPACING;
 		}
 
 		context.disableScissor();
 		if (scrollBar.isVisible()) {
-			scrollBar.extractRenderState(context, mouseX, mouseY, delta);
+			scrollBar.render(context, mouseX, mouseY, delta);
 		}
 	}
 

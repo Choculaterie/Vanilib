@@ -3,9 +3,9 @@ package com.choculaterie.vanilib.gui.widget;
 import com.choculaterie.vanilib.gui.theme.UITheme;
 import net.minecraft.client.Minecraft;
 
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import org.lwjgl.glfw.GLFW;
 
 public class ImageViewerWidget {
@@ -18,7 +18,7 @@ public class ImageViewerWidget {
     private static final int TEXT_VERTICAL_OFFSET = 4;
     private static final int NAV_BG_COLOR = 0xD0000000;
 
-    private final Identifier imageTexture;
+    private final ResourceLocation imageTexture;
     private final int originalImageWidth;
     private final int originalImageHeight;
     private final Runnable onClose;
@@ -34,7 +34,7 @@ public class ImageViewerWidget {
     private CustomButton prevButton;
     private CustomButton nextButton;
 
-    public ImageViewerWidget(Minecraft client, Identifier imageTexture,
+    public ImageViewerWidget(Minecraft client, ResourceLocation imageTexture,
             int originalImageWidth, int originalImageHeight,
             int currentImageIndex, int totalImages,
             Runnable onPrevious, Runnable onNext, Runnable onClose) {
@@ -130,7 +130,7 @@ public class ImageViewerWidget {
         return new int[] { displayWidth, displayHeight };
     }
 
-    public void render(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+    public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
         context.fill(0, 0, screenWidth, screenHeight, UITheme.Colors.OVERLAY_BG);
 
         renderImage(context);
@@ -140,11 +140,11 @@ public class ImageViewerWidget {
         }
 
         if (closeButton != null) {
-            closeButton.extractRenderState(context, mouseX, mouseY, delta);
+            closeButton.render(context, mouseX, mouseY, delta);
         }
     }
 
-    private void renderImage(GuiGraphicsExtractor context) {
+    private void renderImage(GuiGraphics context) {
         int[] dimensions = getScaledImageDimensions();
         int displayWidth = dimensions[0];
         int displayHeight = dimensions[1];
@@ -155,12 +155,11 @@ public class ImageViewerWidget {
         context.fill(0, 0, screenWidth, screenHeight, UITheme.Colors.PANEL_BG);
 
         if (imageTexture != null) {
-            context.blit(imageTexture, imageX, imageY, imageX + displayWidth, imageY + displayHeight, 0.0f, 1.0f, 0.0f,
-                    1.0f);
+            context.blit(imageTexture, imageX, imageY, 0.0f, 0.0f, displayWidth, displayHeight, displayWidth, displayHeight);
         }
     }
 
-    private void renderNavigation(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+    private void renderNavigation(GuiGraphics context, int mouseX, int mouseY, float delta) {
         String pageText = String.format("%d / %d", currentImageIndex + 1, totalImages);
         int textWidth = client.font.width(pageText);
         int textX = (screenWidth - textWidth) / 2;
@@ -173,17 +172,17 @@ public class ImageViewerWidget {
 
         drawNavigationBackground(context, prevBtnX, navY, nextBtnX);
 
-        context.text(client.font, pageText, textX, textY, UITheme.Colors.TEXT_SUBTITLE);
+        context.drawString(client.font, pageText, textX, textY, UITheme.Colors.TEXT_SUBTITLE);
 
         if (prevButton != null) {
-            prevButton.extractRenderState(context, mouseX, mouseY, delta);
+            prevButton.render(context, mouseX, mouseY, delta);
         }
         if (nextButton != null) {
-            nextButton.extractRenderState(context, mouseX, mouseY, delta);
+            nextButton.render(context, mouseX, mouseY, delta);
         }
     }
 
-    private void drawNavigationBackground(GuiGraphicsExtractor context, int prevBtnX, int navY, int nextBtnX) {
+    private void drawNavigationBackground(GuiGraphics context, int prevBtnX, int navY, int nextBtnX) {
         int bgX = prevBtnX;
         int bgWidth = (nextBtnX + NAV_BUTTON_WIDTH) - prevBtnX;
         int bgY = navY;

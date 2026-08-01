@@ -2,7 +2,7 @@ package com.choculaterie.vanilib.gui.widget;
 
 import com.choculaterie.vanilib.gui.theme.UITheme;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
@@ -122,7 +122,7 @@ public class ItemSelectionPopup<T> implements Renderable {
 	}
 
 	@Override
-	public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+	public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
 		context.fill(0, 0, client.getWindow().getGuiScaledWidth(), client.getWindow().getGuiScaledHeight(), UITheme.Colors.OVERLAY_BG);
 		context.fill(x, y, x + width, y + height, UITheme.Colors.BUTTON_BG_DISABLED);
 
@@ -132,8 +132,8 @@ public class ItemSelectionPopup<T> implements Renderable {
 		context.fill(x, y, x + border, y + height, UITheme.Colors.BUTTON_BORDER);
 		context.fill(x + width - border, y, x + width, y + height, UITheme.Colors.BUTTON_BORDER);
 
-		context.centeredText(client.font, title, x + width / 2, y + UITheme.Dimensions.PADDING, UITheme.Colors.TEXT_PRIMARY);
-		searchField.extractRenderState(context, mouseX, mouseY, delta);
+		context.drawCenteredString(client.font, title, x + width / 2, y + UITheme.Dimensions.PADDING, UITheme.Colors.TEXT_PRIMARY);
+		searchField.render(context, mouseX, mouseY, delta);
 
 		int listY = getListY();
 		int listHeight = getListHeight();
@@ -153,7 +153,7 @@ public class ItemSelectionPopup<T> implements Renderable {
 
 			int bgColor = isSelected ? 0xFF505050 : isHovered ? 0xFF404040 : UITheme.Colors.PANEL_BG;
 			context.fill(x + UITheme.Dimensions.PADDING + 2, itemY, listRightEdge - 2, itemY + ITEM_HEIGHT, bgColor);
-			context.text(client.font, displayNameFn.apply(item), x + UITheme.Dimensions.PADDING + 4, itemY + 8, UITheme.Colors.TEXT_PRIMARY);
+			context.drawString(client.font, displayNameFn.apply(item), x + UITheme.Dimensions.PADDING + 4, itemY + 8, UITheme.Colors.TEXT_PRIMARY);
 		}
 
 		context.disableScissor();
@@ -163,8 +163,8 @@ public class ItemSelectionPopup<T> implements Renderable {
 		}
 
 		selectButton.active = selectedIndex >= 0;
-		cancelButton.extractRenderState(context, mouseX, mouseY, delta);
-		selectButton.extractRenderState(context, mouseX, mouseY, delta);
+		cancelButton.render(context, mouseX, mouseY, delta);
+		selectButton.render(context, mouseX, mouseY, delta);
 	}
 
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
