@@ -2,7 +2,7 @@ package com.choculaterie.vanilib.gui.widget;
 
 import com.choculaterie.vanilib.gui.theme.UITheme;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -55,7 +55,7 @@ public class ToastManager {
 		showToast(message, Toast.Type.WARNING);
 	}
 
-	public void render(GuiGraphicsExtractor context, float delta, int mouseX, int mouseY) {
+	public void render(GuiGraphics context, float delta, int mouseX, int mouseY) {
 		if (toasts.isEmpty()) {
 			return;
 		}

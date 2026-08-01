@@ -1,7 +1,7 @@
 package com.choculaterie.vanilib.gui.widget;
 
 import com.choculaterie.vanilib.gui.theme.UITheme;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,7 +62,7 @@ public class Toast {
         this.copyText     = copyText != null ? copyText : message;
     }
 
-    public boolean render(GuiGraphicsExtractor context, net.minecraft.client.gui.Font textRenderer) {
+    public boolean render(GuiGraphics context, net.minecraft.client.gui.Font textRenderer) {
         long now             = System.currentTimeMillis();
         long elapsed         = getEffectiveElapsedTime(now);
         long displayDuration = getDisplayDuration();
@@ -252,7 +252,7 @@ public class Toast {
         return lines;
     }
 
-    private void renderToastBackground(GuiGraphicsExtractor context, int currentX, int toastHeight, int alpha) {
+    private void renderToastBackground(GuiGraphics context, int currentX, int toastHeight, int alpha) {
         int bgColor = UITheme.Colors.BUTTON_BG_DISABLED;
         int bgColorWithAlpha = (alpha << 24) | (bgColor & 0x00FFFFFF);
         context.fill(currentX, yPosition, currentX + TOAST_WIDTH, yPosition + toastHeight, bgColorWithAlpha);
@@ -268,11 +268,11 @@ public class Toast {
         context.fill(currentX + TOAST_WIDTH - UITheme.Dimensions.BORDER_WIDTH, yPosition, currentX + TOAST_WIDTH, yPosition + toastHeight, topBorderColorWithAlpha);
     }
 
-    private void renderIcon(GuiGraphicsExtractor context, net.minecraft.client.gui.Font textRenderer, int currentX, int alpha) {
+    private void renderIcon(GuiGraphics context, net.minecraft.client.gui.Font textRenderer, int currentX, int alpha) {
         String icon = getTypeIcon();
         int iconColor = getAccentColor();
         int iconColorWithAlpha = (alpha << 24) | (iconColor & 0x00FFFFFF);
-        context.text(
+        context.drawString(
                 textRenderer,
                 icon,
                 currentX + UITheme.Typography.LINE_HEIGHT,
@@ -282,33 +282,33 @@ public class Toast {
         );
     }
 
-    private void renderMessage(GuiGraphicsExtractor context, net.minecraft.client.gui.Font textRenderer, int currentX, int alpha) {
+    private void renderMessage(GuiGraphics context, net.minecraft.client.gui.Font textRenderer, int currentX, int alpha) {
         int textX = currentX + 28;
         int textY = yPosition + UITheme.Typography.TEXT_HEIGHT;
         int textColor = UITheme.Colors.TEXT_PRIMARY;
         int textColorWithAlpha = (alpha << 24) | (textColor & 0x00FFFFFF);
 
         for (String line : getWrappedLines(textRenderer)) {
-            context.text(textRenderer, line, textX, textY, textColorWithAlpha, false);
+            context.drawString(textRenderer, line, textX, textY, textColorWithAlpha, false);
             textY += UITheme.Typography.LINE_HEIGHT;
         }
     }
 
-    private void renderCloseButton(GuiGraphicsExtractor context, net.minecraft.client.gui.Font textRenderer, int currentX, int alpha) {
+    private void renderCloseButton(GuiGraphics context, net.minecraft.client.gui.Font textRenderer, int currentX, int alpha) {
         int closeX = currentX + TOAST_WIDTH - CLOSE_BUTTON_SIZE - BUTTON_SPACING;
         int closeY = yPosition + BUTTON_SPACING;
         boolean isHovered = isWithinBounds(mouseX, mouseY, closeX, closeY, CLOSE_BUTTON_SIZE, CLOSE_BUTTON_SIZE);
         drawFadedButton(context, textRenderer, closeX, closeY, CLOSE_BUTTON_SIZE, CLOSE_BUTTON_SIZE, "✕", isHovered, alpha);
     }
 
-    private void renderCopyButton(GuiGraphicsExtractor context, net.minecraft.client.gui.Font textRenderer, int currentX, int toastHeight, int alpha) {
+    private void renderCopyButton(GuiGraphics context, net.minecraft.client.gui.Font textRenderer, int currentX, int toastHeight, int alpha) {
         int copyX = currentX + TOAST_WIDTH - COPY_BUTTON_WIDTH - UITheme.Dimensions.PADDING_SMALL - 3;
         int copyY = yPosition + toastHeight - COPY_BUTTON_HEIGHT - 6;
         boolean isHovered = isWithinBounds(mouseX, mouseY, copyX, copyY, COPY_BUTTON_WIDTH, COPY_BUTTON_HEIGHT);
         drawFadedButton(context, textRenderer, copyX, copyY, COPY_BUTTON_WIDTH, COPY_BUTTON_HEIGHT, "Copy", isHovered, alpha);
     }
 
-    private void drawFadedButton(GuiGraphicsExtractor context, net.minecraft.client.gui.Font textRenderer,
+    private void drawFadedButton(GuiGraphics context, net.minecraft.client.gui.Font textRenderer,
                                   int x, int y, int width, int height, String label, boolean isHovered, int alpha) {
         int bgColor = isHovered ? UITheme.Colors.BUTTON_BG_HOVER : UITheme.Colors.BUTTON_BG;
         context.fill(x, y, x + width, y + height, (alpha << 24) | (bgColor & 0x00FFFFFF));
@@ -321,7 +321,7 @@ public class Toast {
         context.fill(x + width - bw, y, x + width, y + height, borderColor);
 
         int textColor = (alpha << 24) | (UITheme.Colors.TEXT_PRIMARY & 0x00FFFFFF);
-        context.centeredText(textRenderer, label, x + width / 2, y + (height - UITheme.Typography.TEXT_HEIGHT) / 2 + 1, textColor);
+        context.drawCenteredString(textRenderer, label, x + width / 2, y + (height - UITheme.Typography.TEXT_HEIGHT) / 2 + 1, textColor);
     }
 
     private int getAccentColor() {
