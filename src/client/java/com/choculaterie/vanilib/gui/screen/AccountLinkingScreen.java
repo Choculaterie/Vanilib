@@ -113,7 +113,7 @@ public class AccountLinkingScreen extends Screen {
 	private void handleLinkOrReset(boolean hadKey) {
 		if (hadKey) {
 			context.clearApiKey();
-			minecraft.gui.setScreen(new AccountLinkingScreen(parent, context, api));
+			minecraft.setScreen(new AccountLinkingScreen(parent, context, api));
 		} else {
 			startOAuthFlow();
 		}

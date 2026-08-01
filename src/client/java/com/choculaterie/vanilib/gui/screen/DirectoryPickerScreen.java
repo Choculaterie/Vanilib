@@ -261,7 +261,7 @@ public class DirectoryPickerScreen extends Screen {
 	@Override
 	public void onClose() {
 		if (this.minecraft != null) {
-			this.minecraft.gui.setScreen(parentScreen);
+			this.minecraft.setScreen(parentScreen);
 		}
 	}
 
