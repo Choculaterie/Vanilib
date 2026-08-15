@@ -5,6 +5,9 @@
     "name": "Vanilib",
     "description": "Shared UI component library for Choculaterie mods",
     "authors": ["Choculat"],
+    "contributors": [
+        "soller"
+    ],
     "contact": {},
     "license": "MIT",
     "icon": "assets/vanilib/icon.png",
