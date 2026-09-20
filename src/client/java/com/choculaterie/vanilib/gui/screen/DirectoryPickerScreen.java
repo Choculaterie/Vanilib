@@ -186,9 +186,11 @@ public class DirectoryPickerScreen extends Screen {
 		int listHeight = getListHeight();
 		int maxVisibleItems = getMaxVisibleItems();
 		int listRightEdge = getListRightEdge();
+		boolean scrollBarShowing = scrollBar != null && scrollBar.isVisible();
+		int panelRight = scrollBarShowing ? listRightEdge : this.width - PADDING;
 
-		context.fill(PADDING, listY, listRightEdge, listY + listHeight, 0xFF151515);
-		context.enableScissor(PADDING, listY, listRightEdge, listY + listHeight);
+		context.fill(PADDING, listY, panelRight, listY + listHeight, 0xFF151515);
+		context.enableScissor(PADDING, listY, panelRight, listY + listHeight);
 
 		for (int i = scrollOffset; i < Math.min(directories.size(), scrollOffset + maxVisibleItems); i++) {
 			File dir = directories.get(i);
@@ -198,7 +200,7 @@ public class DirectoryPickerScreen extends Screen {
 			boolean isSelected = i == selectedIndex;
 
 			int bgColor = isSelected ? 0xFF404040 : (isHovered ? 0xFF2A2A2A : 0xFF1A1A1A);
-			context.fill(PADDING + 2, itemY + 2, listRightEdge - 2, itemY + ITEM_HEIGHT - 2, bgColor);
+			context.fill(PADDING + 2, itemY + 2, panelRight - 2, itemY + ITEM_HEIGHT - 2, bgColor);
 			context.text(this.font, "📁 " + dir.getName(), PADDING + 5, itemY + 8, 0xFFFFFFFF);
 		}
 

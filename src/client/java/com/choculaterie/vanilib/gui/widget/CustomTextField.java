@@ -121,6 +121,11 @@ public class CustomTextField extends EditBox {
 	}
 
 	@Override
+	public boolean charTyped(net.minecraft.client.input.CharacterEvent event) {
+		return this.isFocused();
+	}
+
+	@Override
 	public void extractWidgetRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
 		handleMouseInput(mouseX, mouseY);
 		handleKeyboardInput();

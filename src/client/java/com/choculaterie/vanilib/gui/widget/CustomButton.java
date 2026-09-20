@@ -67,8 +67,10 @@ public class CustomButton extends Button {
 
         String text = getDisplayText();
 
-        int yOffset = this.getMessage().getString().equals("⚙") ? 0 : 1;
-        int centerX = this.getX() + this.getWidth() / 2;
+        String label = this.getMessage().getString();
+        int yOffset = (label.equals("⚙") || label.equals("\uD83D\uDD04")) ? 0 : 1;
+        int xOffset = label.equals("+") ? 1 : 0;
+        int centerX = this.getX() + this.getWidth() / 2 + xOffset;
         int centerY = this.getY() + (this.getHeight() - UITheme.Typography.TEXT_HEIGHT) / 2 + yOffset;
 
         context.centeredText(tr, text, centerX, centerY, textColor);
