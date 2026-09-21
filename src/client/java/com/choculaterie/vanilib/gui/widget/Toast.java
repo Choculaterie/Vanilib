@@ -106,7 +106,7 @@ public class Toast {
 
     public boolean isHovering(double mouseX, double mouseY) {
         long now      = System.currentTimeMillis();
-        long elapsed  = now - createdTime;
+        long elapsed  = getEffectiveElapsedTime(now);
         long displayDuration = getDisplayDuration();
 
         if (dismissed || elapsed > SLIDE_DURATION + displayDuration) {
@@ -155,7 +155,7 @@ public class Toast {
         if (hovered && !this.hovered) {
             this.hoverStartTime = System.currentTimeMillis();
         } else if (!hovered && this.hovered) {
-            this.pausedTime += System.currentTimeMillis() - this.hoverStartTime;
+            this.pausedTime += pauseBetween(this.hoverStartTime, System.currentTimeMillis());
         }
         this.hovered = hovered;
     }
@@ -175,9 +175,13 @@ public class Toast {
     private long getEffectiveElapsedTime(long now) {
         long totalPausedTime = pausedTime;
         if (hovered && hoverStartTime > 0) {
-            totalPausedTime += now - hoverStartTime;
+            totalPausedTime += pauseBetween(hoverStartTime, now);
         }
         return now - createdTime - totalPausedTime;
+    }
+
+    private long pauseBetween(long from, long to) {
+        return Math.max(0L, to - Math.max(from, createdTime + SLIDE_DURATION));
     }
 
     private long getDisplayDuration() {

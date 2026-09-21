@@ -31,6 +31,14 @@ public class CustomButton extends Button {
         drawText(context);
     }
 
+    @Override
+    protected void handleCursor(GuiGraphicsExtractor context) {
+        if (ToastManager.isMouseOverAnyToast()) {
+            return;
+        }
+        super.handleCursor(context);
+    }
+
     private int getBackgroundColor(int mouseX, int mouseY) {
         if (!this.active) {
             return UITheme.Colors.BUTTON_BG_DISABLED;
@@ -38,6 +46,10 @@ public class CustomButton extends Button {
 
         boolean isHovered = mouseX >= this.getX() && mouseY >= this.getY() &&
                            mouseX < this.getX() + this.getWidth() && mouseY < this.getY() + this.getHeight();
+
+        if (isHovered && ToastManager.isMouseOverAnyToast()) {
+            isHovered = false;
+        }
 
         return isHovered ? UITheme.Colors.BUTTON_BG_HOVER : UITheme.Colors.BUTTON_BG;
     }

@@ -12,6 +12,8 @@ public class ToastManager {
 	private final List<Toast> toasts = new ArrayList<>();
 	private final Minecraft client;
 
+	private static boolean mouseOverAnyToast = false;
+
 	private static final int TOP_PADDING   = UITheme.Dimensions.PADDING;
 	private static final int TOAST_MIN_HEIGHT = 70;
 
@@ -57,10 +59,12 @@ public class ToastManager {
 
 	public void render(GuiGraphicsExtractor context, float delta, int mouseX, int mouseY) {
 		if (toasts.isEmpty()) {
+			mouseOverAnyToast = false;
 			return;
 		}
 
 		Toast.updateMousePosition(mouseX, mouseY);
+		mouseOverAnyToast = isMouseOverToast(mouseX, mouseY);
 
 		Iterator<Toast> iterator = toasts.iterator();
 		boolean toastRemoved = false;
@@ -86,6 +90,10 @@ public class ToastManager {
 
 	public boolean hasToasts() {
 		return !toasts.isEmpty();
+	}
+
+	public static boolean isMouseOverAnyToast() {
+		return mouseOverAnyToast;
 	}
 
 	public boolean isMouseOverToast(double mouseX, double mouseY) {
