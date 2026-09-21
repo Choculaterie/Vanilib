@@ -8,7 +8,9 @@
     "contributors": [
         "soller"
     ],
-    "contact": {},
+    "contact": {
+        "sources": "https://github.com/Choculaterie/Vanilib"
+    },
     "license": "MIT",
     "icon": "assets/vanilib/icon.png",
     "environment": "client",
