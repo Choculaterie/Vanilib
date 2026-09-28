@@ -42,7 +42,7 @@ public class ToastManager {
 	}
 
 	public void showError(String message) {
-		showToast(message, Toast.Type.ERROR);
+		showToast(message, Toast.Type.ERROR, true, message);
 	}
 
 	public void showError(String message, String fullErrorText) {

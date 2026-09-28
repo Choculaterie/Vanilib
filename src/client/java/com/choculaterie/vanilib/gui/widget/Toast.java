@@ -15,15 +15,15 @@ public class Toast {
     }
 
     private static final int TOAST_WIDTH        = UITheme.Dimensions.TOAST_MAX_WIDTH;
-    private static final int TOAST_HEIGHT       = UITheme.Dimensions.TOAST_HEIGHT;
     private static final long SLIDE_DURATION    = 300;
     private static final long ERROR_DISPLAY_DURATION = 8000;
     private static final int ACCENT_BORDER_WIDTH = 4;
     private static final int BUTTON_SPACING     = 4;
     private static final int CLOSE_BUTTON_SIZE  = 16;
+    private static final int TEXT_LEFT          = 28;
+    private static final int TEXT_RIGHT_GAP     = 6;
     private static final int COPY_BUTTON_WIDTH  = 50;
     private static final int COPY_BUTTON_HEIGHT = 18;
-    private static final int TOAST_EXTRA_HEIGHT = 20;
     private static final int Y_TRANSITION_DURATION = 400;
     private static final int TOAST_SPACING      = 5;
 
@@ -226,14 +226,20 @@ public class Toast {
     }
 
     private int getToastHeight() {
-        int extraLines = wrappedLines != null ? Math.max(0, wrappedLines.size() - 1) : 0;
-        int h = TOAST_HEIGHT + extraLines * UITheme.Typography.LINE_HEIGHT;
-        return hasCopyButton ? h + TOAST_EXTRA_HEIGHT : h;
+        int lines = wrappedLines != null ? Math.max(1, wrappedLines.size()) : 1;
+        int textBlock = UITheme.Typography.TEXT_HEIGHT + lines * UITheme.Typography.LINE_HEIGHT;
+        int h = textBlock + UITheme.Dimensions.PADDING_SMALL;
+        if (hasCopyButton)
+            h += COPY_BUTTON_HEIGHT + UITheme.Dimensions.PADDING_SMALL;
+        int minimum = CLOSE_BUTTON_SIZE + BUTTON_SPACING * 2
+                + (hasCopyButton ? COPY_BUTTON_HEIGHT + UITheme.Dimensions.PADDING_SMALL : 0);
+        return Math.max(minimum, h);
     }
 
     private List<String> getWrappedLines(net.minecraft.client.gui.Font font) {
         if (wrappedLines == null) {
-            wrappedLines = wrapText(font, message, TOAST_WIDTH - 44);
+            wrappedLines = wrapText(font, message,
+                    TOAST_WIDTH - TEXT_LEFT - CLOSE_BUTTON_SIZE - BUTTON_SPACING - TEXT_RIGHT_GAP);
         }
         return wrappedLines;
     }
@@ -287,7 +293,7 @@ public class Toast {
     }
 
     private void renderMessage(GuiGraphicsExtractor context, net.minecraft.client.gui.Font textRenderer, int currentX, int alpha) {
-        int textX = currentX + 28;
+        int textX = currentX + TEXT_LEFT;
         int textY = yPosition + UITheme.Typography.TEXT_HEIGHT;
         int textColor = UITheme.Colors.TEXT_PRIMARY;
         int textColorWithAlpha = (alpha << 24) | (textColor & 0x00FFFFFF);
