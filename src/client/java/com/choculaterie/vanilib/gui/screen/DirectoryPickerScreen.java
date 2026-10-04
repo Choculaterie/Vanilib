@@ -6,13 +6,14 @@ import com.choculaterie.vanilib.gui.widget.ToastManager;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import org.lwjgl.glfw.GLFW;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
+import net.minecraft.client.Minecraft;
+import com.mojang.blaze3d.platform.InputConstants;
 
 public class DirectoryPickerScreen extends Screen {
 	private static final int PADDING = 10;
@@ -207,7 +208,7 @@ public class DirectoryPickerScreen extends Screen {
 		context.disableScissor();
 
 		if (scrollBar != null && scrollBar.isVisible() && this.minecraft != null) {
-			boolean scrollChanged = scrollBar.updateAndRender(context, mouseX, mouseY, delta, GLFW.glfwGetCurrentContext());
+			boolean scrollChanged = scrollBar.updateAndRender(context, mouseX, mouseY, delta, Minecraft.getInstance().getWindow().handle());
 			if (scrollChanged) {
 				int maxScroll = getMaxScroll();
 				scrollOffset = (int) (scrollBar.getScrollPercentage() * maxScroll);
@@ -235,7 +236,7 @@ public class DirectoryPickerScreen extends Screen {
 
 		if (mouseX >= PADDING && mouseX < listRightEdge && mouseY >= listY && mouseY < listY + listHeight) {
 			int clickedIndex = scrollOffset + (int) ((mouseY - listY) / ITEM_HEIGHT);
-			if (clickedIndex >= 0 && clickedIndex < directories.size() && button == 0) {
+			if (clickedIndex >= 0 && clickedIndex < directories.size() && button == InputConstants.MOUSE_BUTTON_LEFT) {
 				if (clickedIndex == selectedIndex && doubled) {
 					currentDirectory = directories.get(clickedIndex);
 					loadDirectories();

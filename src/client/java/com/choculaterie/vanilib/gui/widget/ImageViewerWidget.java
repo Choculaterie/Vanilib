@@ -6,7 +6,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import org.lwjgl.glfw.GLFW;
+import com.mojang.blaze3d.platform.InputConstants;
 
 public class ImageViewerWidget {
     private static final int IMAGE_MARGIN = 40;
@@ -193,7 +193,7 @@ public class ImageViewerWidget {
     }
 
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (button != 0)
+        if (button != InputConstants.MOUSE_BUTTON_LEFT)
             return false;
 
         if (isOverButton(closeButton, mouseX, mouseY)) {
@@ -231,16 +231,16 @@ public class ImageViewerWidget {
     }
 
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
+        if (keyCode == InputConstants.KEY_ESCAPE) {
             onClose.run();
             return true;
         }
 
         if (totalImages > 1) {
-            if (keyCode == GLFW.GLFW_KEY_LEFT) {
+            if (keyCode == InputConstants.KEY_LEFT) {
                 onPrevious.run();
                 return true;
-            } else if (keyCode == GLFW.GLFW_KEY_RIGHT) {
+            } else if (keyCode == InputConstants.KEY_RIGHT) {
                 onNext.run();
                 return true;
             }

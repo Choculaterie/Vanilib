@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import com.mojang.blaze3d.platform.InputConstants;
 
 public class CardListWidget<T> implements Renderable, GuiEventListener {
 	private static final int ENTRY_SPACING = 2;
@@ -113,7 +114,7 @@ public class CardListWidget<T> implements Renderable, GuiEventListener {
 		if (scrollBar.mouseClicked(mouseX, mouseY, button)) {
 			return true;
 		}
-		if (button != 0 || !isMouseOver(mouseX, mouseY)) {
+		if (button != InputConstants.MOUSE_BUTTON_LEFT || !isMouseOver(mouseX, mouseY)) {
 			return false;
 		}
 

@@ -8,11 +8,11 @@ import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import com.mojang.blaze3d.platform.InputConstants;
 
 public class TextInputPopup implements Renderable, GuiEventListener {
     private static final int POPUP_WIDTH = 300;
@@ -203,10 +203,10 @@ public class TextInputPopup implements Renderable, GuiEventListener {
     }
 
     private void handleEscapeKey() {
-        long windowHandle = GLFW.glfwGetCurrentContext();
+        long windowHandle = Minecraft.getInstance().getWindow().handle();
 
         if (windowHandle != 0) {
-            boolean escapePressed = GLFW.glfwGetKey(windowHandle, GLFW.GLFW_KEY_ESCAPE) == GLFW.GLFW_PRESS;
+            boolean escapePressed = InputConstants.isKeyDown(InputConstants.KEY_ESCAPE);
 
             if (escapePressed && !wasEscapePressed) {
                 onCancel.run();

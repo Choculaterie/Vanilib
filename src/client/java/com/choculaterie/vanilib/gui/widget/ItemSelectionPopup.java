@@ -5,12 +5,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.network.chat.Component;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import com.mojang.blaze3d.platform.InputConstants;
 
 public class ItemSelectionPopup<T> implements Renderable {
 	private static final int ITEM_HEIGHT = 24;
@@ -159,7 +159,7 @@ public class ItemSelectionPopup<T> implements Renderable {
 		context.disableScissor();
 
 		if (scrollBar.isVisible()) {
-			scrollBar.updateAndRender(context, mouseX, mouseY, delta, GLFW.glfwGetCurrentContext());
+			scrollBar.updateAndRender(context, mouseX, mouseY, delta, Minecraft.getInstance().getWindow().handle());
 		}
 
 		selectButton.active = selectedIndex >= 0;
@@ -168,7 +168,7 @@ public class ItemSelectionPopup<T> implements Renderable {
 	}
 
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
-		if (button != 0) {
+		if (button != InputConstants.MOUSE_BUTTON_LEFT) {
 			return true;
 		}
 		if (mouseX < x || mouseX > x + width || mouseY < y || mouseY > y + height) {

@@ -1,6 +1,5 @@
 package com.choculaterie.vanilib.gui.widget;
 
-import org.lwjgl.glfw.GLFW;
 import com.choculaterie.vanilib.gui.theme.UITheme;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -262,7 +261,7 @@ public class DropdownWidget implements Renderable, GuiEventListener {
         }
 
         if (client.getWindow() != null) {
-            boolean scrollChanged = scrollBar.updateAndRender(context, mouseX, mouseY, delta, GLFW.glfwGetCurrentContext());
+            boolean scrollChanged = scrollBar.updateAndRender(context, mouseX, mouseY, delta, Minecraft.getInstance().getWindow().handle());
 
             if (scrollChanged || scrollBar.isDragging()) {
                 scrollOffset = (int)(scrollBar.getScrollPercentage() * maxScrollOffset);

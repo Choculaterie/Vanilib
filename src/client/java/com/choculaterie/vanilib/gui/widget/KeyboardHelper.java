@@ -1,39 +1,38 @@
 package com.choculaterie.vanilib.gui.widget;
 
-import org.lwjgl.glfw.GLFW;
+import com.mojang.blaze3d.platform.InputConstants;
+import com.choculaterie.vanilib.util.MouseState;
 
 public class KeyboardHelper {
-    private final long windowHandle;
 
     public KeyboardHelper(long windowHandle) {
-        this.windowHandle = windowHandle;
     }
 
     public boolean isKeyPressed(int key) {
-        return GLFW.glfwGetKey(windowHandle, key) == GLFW.GLFW_PRESS;
+        return InputConstants.isKeyDown(key);
     }
 
     public boolean isCtrlHeld() {
-        return isKeyPressed(GLFW.GLFW_KEY_LEFT_CONTROL) || isKeyPressed(GLFW.GLFW_KEY_RIGHT_CONTROL);
+        return isKeyPressed(InputConstants.KEY_LCONTROL) || isKeyPressed(InputConstants.KEY_RCONTROL);
     }
 
     public boolean isShiftHeld() {
-        return isKeyPressed(GLFW.GLFW_KEY_LEFT_SHIFT) || isKeyPressed(GLFW.GLFW_KEY_RIGHT_SHIFT);
+        return isKeyPressed(InputConstants.KEY_LSHIFT) || isKeyPressed(InputConstants.KEY_RSHIFT);
     }
 
     public boolean isAltHeld() {
-        return isKeyPressed(GLFW.GLFW_KEY_LEFT_ALT) || isKeyPressed(GLFW.GLFW_KEY_RIGHT_ALT);
+        return isKeyPressed(InputConstants.KEY_LALT) || isKeyPressed(InputConstants.KEY_RALT);
     }
 
     public boolean isMouseButtonPressed(int button) {
-        return GLFW.glfwGetMouseButton(windowHandle, button) == GLFW.GLFW_PRESS;
+        return MouseState.isButtonDown(button);
     }
 
     public boolean isLeftMousePressed() {
-        return isMouseButtonPressed(GLFW.GLFW_MOUSE_BUTTON_LEFT);
+        return isMouseButtonPressed(InputConstants.MOUSE_BUTTON_LEFT);
     }
 
     public boolean isRightMousePressed() {
-        return isMouseButtonPressed(GLFW.GLFW_MOUSE_BUTTON_RIGHT);
+        return isMouseButtonPressed(InputConstants.MOUSE_BUTTON_RIGHT);
     }
 }

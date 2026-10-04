@@ -7,10 +7,10 @@ import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
+import com.mojang.blaze3d.platform.InputConstants;
 
 public class ConfirmPopup implements Renderable, GuiEventListener {
     private static final int POPUP_WIDTH = 400;
@@ -145,12 +145,12 @@ public class ConfirmPopup implements Renderable, GuiEventListener {
     @Override
     public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
         Minecraft client = Minecraft.getInstance();
-        long windowHandle = GLFW.glfwGetCurrentContext();
+        long windowHandle = Minecraft.getInstance().getWindow().handle();
 
         if (windowHandle != 0) {
-            boolean enterPressed = GLFW.glfwGetKey(windowHandle, GLFW.GLFW_KEY_ENTER) == GLFW.GLFW_PRESS ||
-                                  GLFW.glfwGetKey(windowHandle, GLFW.GLFW_KEY_KP_ENTER) == GLFW.GLFW_PRESS;
-            boolean escapePressed = GLFW.glfwGetKey(windowHandle, GLFW.GLFW_KEY_ESCAPE) == GLFW.GLFW_PRESS;
+            boolean enterPressed = InputConstants.isKeyDown(InputConstants.KEY_RETURN) ||
+                                  InputConstants.isKeyDown(InputConstants.KEY_NUMPADENTER);
+            boolean escapePressed = InputConstants.isKeyDown(InputConstants.KEY_ESCAPE);
 
             if (enterPressed && !wasEnterPressed) {
                 onConfirm.run();
@@ -203,7 +203,7 @@ public class ConfirmPopup implements Renderable, GuiEventListener {
 
         if (scrollBar != null && client.getWindow() != null) {
             scrollBar.setScrollPercentage(scrollOffset / Math.max(1, actualMessageHeight - visibleMessageHeight));
-            boolean scrollChanged = scrollBar.updateAndRender(context, mouseX, mouseY, delta, GLFW.glfwGetCurrentContext());
+            boolean scrollChanged = scrollBar.updateAndRender(context, mouseX, mouseY, delta, Minecraft.getInstance().getWindow().handle());
 
             if (scrollChanged || scrollBar.isDragging()) {
                 double maxScroll = actualMessageHeight - visibleMessageHeight;

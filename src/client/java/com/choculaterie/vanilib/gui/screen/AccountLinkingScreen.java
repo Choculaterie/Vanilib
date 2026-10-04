@@ -156,7 +156,7 @@ public class AccountLinkingScreen extends Screen {
 					if (copyUrlBtn != null) copyUrlBtn.visible = true;
 					linkingStatus = "Waiting for approval...";
 					try {
-						net.minecraft.util.Util.getPlatform().openUri(new java.net.URI(authUrl));
+						com.mojang.blaze3d.Blaze3D.openUri(new java.net.URI(authUrl));
 					} catch (Exception ignored) {}
 				});
 				startPolling(currentFlowId, expiresIn);

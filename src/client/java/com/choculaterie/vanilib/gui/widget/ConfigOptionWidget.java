@@ -16,6 +16,7 @@ import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import com.mojang.blaze3d.platform.InputConstants;
 
 public class ConfigOptionWidget implements Renderable, GuiEventListener {
 	private static final double LABEL_WIDTH_RATIO = 0.5;
@@ -157,7 +158,7 @@ public class ConfigOptionWidget implements Renderable, GuiEventListener {
 	}
 
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
-		if (button != 0) {
+		if (button != InputConstants.MOUSE_BUTTON_LEFT) {
 			return false;
 		}
 

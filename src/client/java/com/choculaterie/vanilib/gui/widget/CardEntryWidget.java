@@ -9,6 +9,7 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 
 import java.util.List;
 import java.util.function.Function;
+import com.mojang.blaze3d.platform.InputConstants;
 
 public class CardEntryWidget<T> implements Renderable, GuiEventListener {
 	public record Line(String text, int color) {}
@@ -115,7 +116,7 @@ public class CardEntryWidget<T> implements Renderable, GuiEventListener {
 	}
 
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
-		if (button != 0 || mouseX < x || mouseX >= x + width || mouseY < y || mouseY >= y + calculatedHeight) {
+		if (button != InputConstants.MOUSE_BUTTON_LEFT || mouseX < x || mouseX >= x + width || mouseY < y || mouseY >= y + calculatedHeight) {
 			return false;
 		}
 		if (onClick != null) {

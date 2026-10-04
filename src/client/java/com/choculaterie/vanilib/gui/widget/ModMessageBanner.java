@@ -8,6 +8,7 @@ import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 
 import java.util.function.Consumer;
+import com.mojang.blaze3d.platform.InputConstants;
 
 public class ModMessageBanner implements Renderable, GuiEventListener {
     private static final int BANNER_HEIGHT = 30;
@@ -160,7 +161,7 @@ public class ModMessageBanner implements Renderable, GuiEventListener {
     }
 
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (!visible || button != 0) {
+        if (!visible || button != InputConstants.MOUSE_BUTTON_LEFT) {
             return false;
         }
 

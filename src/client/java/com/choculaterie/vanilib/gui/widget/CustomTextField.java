@@ -5,7 +5,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
-import org.lwjgl.glfw.GLFW;
+import com.mojang.blaze3d.platform.InputConstants;
+import com.choculaterie.vanilib.util.MouseState;
 
 public class CustomTextField extends EditBox {
 	private static final long KEY_INITIAL_DELAY = 400;
@@ -28,9 +29,6 @@ public class CustomTextField extends EditBox {
 	private boolean wasClearButtonMouseDown = false;
 
 	private static CustomTextField activeField = null;
-	private static boolean callbackInstalled = false;
-	private static long installedWindowHandle = 0;
-	private static org.lwjgl.glfw.GLFWCharCallback savedMinecraftCallback = null;
 
 	private final KeyRepeatState backspaceState = new KeyRepeatState();
 	private final KeyRepeatState deleteState    = new KeyRepeatState();
@@ -93,7 +91,6 @@ public class CustomTextField extends EditBox {
 		super.setFocused(focused);
 		if (focused) {
 			activeField = this;
-			installCharCallback();
 		} else if (activeField == this) {
 			activeField = null;
 		}
@@ -105,14 +102,14 @@ public class CustomTextField extends EditBox {
 
 	public static void restoreMinecraftCharCallback() {
 		activeField = null;
-		if (!callbackInstalled)
-			return;
-		long windowHandle = GLFW.glfwGetCurrentContext();
-		if (windowHandle != 0) {
-			GLFW.glfwSetCharCallback(windowHandle, savedMinecraftCallback);
+	}
+
+	public static boolean routeCharTyped(int codepoint) {
+		if (activeField == null || !activeField.isFocused()) {
+			return false;
 		}
-		callbackInstalled = false;
-		savedMinecraftCallback = null;
+		activeField.onCharTyped(codepoint);
+		return true;
 	}
 
 	@Override
@@ -136,41 +133,25 @@ public class CustomTextField extends EditBox {
 		drawClearButton(context, mouseX, mouseY);
 	}
 
-	private void installCharCallback() {
-		long windowHandle = GLFW.glfwGetCurrentContext();
-		if (windowHandle != 0 && (!callbackInstalled || installedWindowHandle != windowHandle)) {
-			org.lwjgl.glfw.GLFWCharCallback prev = GLFW.glfwSetCharCallback(windowHandle, (window, codepoint) -> {
-				if (activeField != null && activeField.isFocused()) {
-					activeField.onCharTyped((char) codepoint);
-				}
-			});
-			if (savedMinecraftCallback == null) {
-				savedMinecraftCallback = prev;
-			}
-			callbackInstalled = true;
-			installedWindowHandle = windowHandle;
-		}
-	}
-
-	private void onCharTyped(char c) {
-		if (c < 32) {
+	private void onCharTyped(int codepoint) {
+		if (codepoint < 32) {
 			return;
 		}
 
-		this.insertText(String.valueOf(c));
+		this.insertText(Character.toString(codepoint));
 		if (onChanged != null) {
 			onChanged.run();
 		}
 	}
 
 	private void handleMouseInput(int mouseX, int mouseY) {
-		long windowHandle = GLFW.glfwGetCurrentContext();
+		long windowHandle = Minecraft.getInstance().getWindow().handle();
 		if (windowHandle == 0) {
 			wasClearButtonMouseDown = false;
 			return;
 		}
 
-		boolean isMouseDown = GLFW.glfwGetMouseButton(windowHandle, GLFW.GLFW_MOUSE_BUTTON_LEFT) == GLFW.GLFW_PRESS;
+		boolean isMouseDown = MouseState.isLeftDown();
 
 		if (!this.getValue().isEmpty() && isMouseDown && !wasClearButtonMouseDown
 				&& isOverClearButton(mouseX, mouseY)) {
@@ -181,13 +162,23 @@ public class CustomTextField extends EditBox {
 			if (onClearPressed != null) {
 				onClearPressed.run();
 			}
+		} else if (isMouseDown && !wasClearButtonMouseDown && this.isFocused() && isOverTextArea(mouseX, mouseY)) {
+			int relativeX = mouseX - (this.getX() + TEXT_PADDING);
+			int index = client.font.plainSubstrByWidth(this.getValue(), Math.max(0, relativeX)).length();
+			this.moveCursorTo(index, false);
 		}
 
 		wasClearButtonMouseDown = isMouseDown;
 	}
 
+	private boolean isOverTextArea(int mouseX, int mouseY) {
+		return mouseX >= this.getX() && mouseX < this.getX() + this.getWidth()
+				&& mouseY >= this.getY() && mouseY < this.getY() + this.getHeight()
+				&& !isOverClearButton(mouseX, mouseY);
+	}
+
 	private void handleKeyboardInput() {
-		long windowHandle = GLFW.glfwGetCurrentContext();
+		long windowHandle = Minecraft.getInstance().getWindow().handle();
 		if (windowHandle == 0)
 			return;
 
@@ -199,8 +190,8 @@ public class CustomTextField extends EditBox {
 	}
 
 	private void handleEnterKey(long windowHandle) {
-		boolean isEnterDown = GLFW.glfwGetKey(windowHandle, GLFW.GLFW_KEY_ENTER) == GLFW.GLFW_PRESS ||
-				GLFW.glfwGetKey(windowHandle, GLFW.GLFW_KEY_KP_ENTER) == GLFW.GLFW_PRESS;
+		boolean isEnterDown = InputConstants.isKeyDown(InputConstants.KEY_RETURN) ||
+				InputConstants.isKeyDown(InputConstants.KEY_NUMPADENTER);
 
 		if (this.isFocused() && onEnterPressed != null && isEnterDown && !wasEnterDown) {
 			onEnterPressed.run();
@@ -214,12 +205,12 @@ public class CustomTextField extends EditBox {
 		String currentText = this.getValue();
 		int cursorPos = this.getCursorPosition();
 
-		boolean isCtrlDown = GLFW.glfwGetKey(windowHandle, GLFW.GLFW_KEY_LEFT_CONTROL) == GLFW.GLFW_PRESS ||
-				GLFW.glfwGetKey(windowHandle, GLFW.GLFW_KEY_RIGHT_CONTROL) == GLFW.GLFW_PRESS;
+		boolean isCtrlDown = InputConstants.isKeyDown(InputConstants.KEY_LCONTROL) ||
+				InputConstants.isKeyDown(InputConstants.KEY_RCONTROL);
 
-		boolean isVDown = GLFW.glfwGetKey(windowHandle, GLFW.GLFW_KEY_V) == GLFW.GLFW_PRESS;
+		boolean isVDown = InputConstants.isKeyDown(InputConstants.KEY_V);
 		if (isCtrlDown && isVDown && !wasCtrlVDown) {
-			String clipboard = GLFW.glfwGetClipboardString(windowHandle);
+			String clipboard = client.keyboardHandler.getClipboard();
 			if (clipboard != null && !clipboard.isEmpty()) {
 				this.insertText(clipboard);
 				if (onChanged != null) {
@@ -229,14 +220,14 @@ public class CustomTextField extends EditBox {
 		}
 		wasCtrlVDown = isCtrlDown && isVDown;
 
-		boolean isADown = GLFW.glfwGetKey(windowHandle, GLFW.GLFW_KEY_A) == GLFW.GLFW_PRESS;
+		boolean isADown = InputConstants.isKeyDown(InputConstants.KEY_A);
 		if (isCtrlDown && isADown && !wasCtrlADown) {
 			this.moveCursorToEnd(false);
 			this.setHighlightPos(0);
 		}
 		wasCtrlADown = isCtrlDown && isADown;
 
-		boolean isBackspaceDown = GLFW.glfwGetKey(windowHandle, GLFW.GLFW_KEY_BACKSPACE) == GLFW.GLFW_PRESS;
+		boolean isBackspaceDown = InputConstants.isKeyDown(InputConstants.KEY_BACKSPACE);
 		boolean hasSelection = !this.getHighlighted().isEmpty();
 		if (backspaceState.shouldTrigger(currentTime, isBackspaceDown) && (cursorPos > 0 || hasSelection)) {
 			this.deleteChars(-1);
@@ -245,7 +236,7 @@ public class CustomTextField extends EditBox {
 			}
 		}
 
-		boolean isDeleteDown = GLFW.glfwGetKey(windowHandle, GLFW.GLFW_KEY_DELETE) == GLFW.GLFW_PRESS;
+		boolean isDeleteDown = InputConstants.isKeyDown(InputConstants.KEY_DELETE);
 		if (deleteState.shouldTrigger(currentTime, isDeleteDown) && (cursorPos < currentText.length() || hasSelection)) {
 			this.deleteChars(1);
 			if (onChanged != null) {
@@ -253,29 +244,29 @@ public class CustomTextField extends EditBox {
 			}
 		}
 
-		boolean isLeftDown = GLFW.glfwGetKey(windowHandle, GLFW.GLFW_KEY_LEFT) == GLFW.GLFW_PRESS;
+		boolean isLeftDown = InputConstants.isKeyDown(InputConstants.KEY_LEFT);
 		if (leftState.shouldTrigger(currentTime, isLeftDown) && cursorPos > 0) {
 			this.moveCursorTo(cursorPos - 1, false);
 		}
 
-		boolean isRightDown = GLFW.glfwGetKey(windowHandle, GLFW.GLFW_KEY_RIGHT) == GLFW.GLFW_PRESS;
+		boolean isRightDown = InputConstants.isKeyDown(InputConstants.KEY_RIGHT);
 		if (rightState.shouldTrigger(currentTime, isRightDown) && cursorPos < currentText.length()) {
 			this.moveCursorTo(cursorPos + 1, false);
 		}
 
-		boolean isHomeDown = GLFW.glfwGetKey(windowHandle, GLFW.GLFW_KEY_HOME) == GLFW.GLFW_PRESS;
+		boolean isHomeDown = InputConstants.isKeyDown(InputConstants.KEY_HOME);
 		if (isHomeDown && !wasHomePressed) {
 			this.moveCursorToStart(false);
 		}
 		wasHomePressed = isHomeDown;
 
-		boolean isEndDown = GLFW.glfwGetKey(windowHandle, GLFW.GLFW_KEY_END) == GLFW.GLFW_PRESS;
+		boolean isEndDown = InputConstants.isKeyDown(InputConstants.KEY_END);
 		if (isEndDown && !wasEndPressed) {
 			this.moveCursorToEnd(false);
 		}
 		wasEndPressed = isEndDown;
 
-		boolean isEscapeDown = GLFW.glfwGetKey(windowHandle, GLFW.GLFW_KEY_ESCAPE) == GLFW.GLFW_PRESS;
+		boolean isEscapeDown = InputConstants.isKeyDown(InputConstants.KEY_ESCAPE);
 		if (isEscapeDown) {
 			this.setFocused(false);
 		}

@@ -3,7 +3,8 @@ package com.choculaterie.vanilib.gui.widget;
 import com.choculaterie.vanilib.gui.theme.UITheme;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Renderable;
-import org.lwjgl.glfw.GLFW;
+import com.mojang.blaze3d.platform.InputConstants;
+import com.choculaterie.vanilib.util.MouseState;
 
 public class ScrollBar implements Renderable {
     private static final int MIN_HANDLE_HEIGHT = 20;
@@ -72,7 +73,7 @@ public class ScrollBar implements Renderable {
     }
 
     public boolean updateAndRender(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta, long windowHandle) {
-        boolean isMouseDown = GLFW.glfwGetMouseButton(windowHandle, GLFW.GLFW_MOUSE_BUTTON_LEFT) == GLFW.GLFW_PRESS;
+        boolean isMouseDown = MouseState.isLeftDown();
 
         double handleHeight = getHandleHeight();
         double maxHandleY = getMaxHandleY();
@@ -139,7 +140,7 @@ public class ScrollBar implements Renderable {
     }
 
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (!isVisible() || button != 0)
+        if (!isVisible() || button != InputConstants.MOUSE_BUTTON_LEFT)
             return false;
 
         if (isMouseOverHandle((int) mouseX, (int) mouseY)) {
@@ -153,7 +154,7 @@ public class ScrollBar implements Renderable {
     }
 
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        if (button == 0 && isDragging) {
+        if (button == InputConstants.MOUSE_BUTTON_LEFT && isDragging) {
             isDragging = false;
             return true;
         }
