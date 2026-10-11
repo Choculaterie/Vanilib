@@ -1,5 +1,7 @@
 package com.choculaterie.vanilib.gui.widget;
 
+import com.choculaterie.vanilib.gui.theme.UIDraw;
+
 import com.choculaterie.vanilib.gui.theme.UITheme;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -144,6 +146,7 @@ public class ToastManager {
 
 	private boolean handleCloseButton(Toast toast, double mouseX, double mouseY) {
 		if (toast.isCloseButtonClicked(mouseX, mouseY)) {
+			UIDraw.playClick();
 			toast.dismiss();
 			return true;
 		}
@@ -152,6 +155,7 @@ public class ToastManager {
 
 	private boolean handleCopyButton(Toast toast, double mouseX, double mouseY) {
 		if (toast.isCopyButtonClicked(mouseX, mouseY)) {
+			UIDraw.playClick();
 			String textToCopy = toast.getCopyText();
 			if (client.keyboardHandler != null) {
 				client.keyboardHandler.setClipboard(textToCopy);

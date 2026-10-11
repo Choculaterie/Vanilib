@@ -1,5 +1,8 @@
 package com.choculaterie.vanilib.gui.screen;
 
+import com.choculaterie.vanilib.gui.theme.ButtonStyle;
+import com.choculaterie.vanilib.gui.theme.UIDraw;
+import com.choculaterie.vanilib.gui.theme.UITheme;
 import com.choculaterie.vanilib.gui.widget.CustomButton;
 import com.choculaterie.vanilib.gui.widget.ToastManager;
 import com.choculaterie.vanilib.network.AccountLinkingApi;
@@ -17,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 
 public class AccountLinkingScreen extends Screen {
 	private static final int PADDING = 6;
-	private static final int BTN_SIZE = 20;
+	private static final int BTN_SIZE = 21;
 	private static final String VERIFY_SERVER_ADDRESS = "mc.choculaterie.com";
 	private static final String VERIFY_SERVER_NAME = "Choculaterie";
 
@@ -56,6 +59,7 @@ public class AccountLinkingScreen extends Screen {
 
 		linkBtn = new CustomButton(cx - btnW / 2, btnY, btnW, BTN_SIZE,
 			Component.literal(hasKey ? "Reset" : "Link Account"), b -> handleLinkOrReset(hasKey));
+		linkBtn.setStyle(hasKey ? ButtonStyle.DANGER : ButtonStyle.PRIMARY);
 		addRenderableWidget(linkBtn);
 
 		copyUrlBtn = new CustomButton(cx - btnW / 2, btnY, btnW, BTN_SIZE, Component.literal("Copy URL"), b -> copyAuthUrl());
@@ -65,35 +69,34 @@ public class AccountLinkingScreen extends Screen {
 
 	@Override
 	public void extractRenderState(GuiGraphicsExtractor renderContext, int mouseX, int mouseY, float delta) {
+		renderContext.fill(0, 0, this.width, this.height, UITheme.Colors.BACKGROUND);
+		renderContext.fill(0, 0, this.width, UITheme.Dimensions.TITLE_BAR_HEIGHT, UITheme.Colors.PANEL_BG);
+		UIDraw.hDivider(renderContext, 0, this.width, UITheme.Dimensions.TITLE_BAR_HEIGHT, UITheme.Colors.DIVIDER);
 		super.extractRenderState(renderContext, mouseX, mouseY, delta);
 		int cx = this.width / 2;
 		int btnY = this.height / 2 - 10;
 
-		renderContext.centeredText(font, title, cx, 10, 0xFFFFFFFF);
+		UIDraw.centeredText(renderContext, title, cx, (UITheme.Dimensions.TITLE_BAR_HEIGHT - UITheme.Typography.CAP_HEIGHT) / 2, UITheme.Colors.TEXT_HIGHLIGHT);
 
 		boolean hasKey = context.hasApiKey();
 		if (hasKey && !isLinking) {
-			renderContext.centeredText(font, Component.literal("§aAccount linked ✓"), cx, btnY - 20, 0xFFFFFFFF);
-			renderContext.centeredText(font, Component.literal("Reset to unlink and connect a different account."),
-				cx, btnY + 30, 0xFF888888);
+			UIDraw.centeredText(renderContext, "Account linked", cx, btnY - 20, UITheme.Colors.SUCCESS_TEXT);
+			UIDraw.centeredText(renderContext, "Reset to unlink and connect a different account.", cx, btnY + 30, UITheme.Colors.TEXT_MUTED);
 		} else if (!isLinking) {
 			int stepY = btnY + 32, lineH = 12;
-			renderContext.centeredText(font, Component.literal("How it works:"), cx, stepY, 0xFF999999);
+			UIDraw.centeredText(renderContext, "How it works:", cx, stepY, UITheme.Colors.ACCENT);
 			stepY += lineH + 4;
-			renderContext.centeredText(font, Component.literal("1. A browser window will open. Sign in and click Approve."),
-				cx, stepY, 0xFFCCCCCC);
+			UIDraw.centeredText(renderContext, "1. A browser window will open. Sign in and click Approve.", cx, stepY, UITheme.Colors.TEXT_SUBTITLE);
 			stepY += lineH;
-			renderContext.centeredText(font, Component.literal("2. The game will briefly join a server to verify your Minecraft account."),
-				cx, stepY, 0xFFCCCCCC);
+			UIDraw.centeredText(renderContext, "2. The game will briefly join a server to verify your Minecraft account.", cx, stepY, UITheme.Colors.TEXT_SUBTITLE);
 			stepY += lineH;
-			renderContext.centeredText(font, Component.literal("3. " + context.getCompletionText()), cx, stepY, 0xFFCCCCCC);
+			UIDraw.centeredText(renderContext, "3. " + context.getCompletionText(), cx, stepY, UITheme.Colors.TEXT_SUBTITLE);
 		} else {
 			if (!linkingStatus.isEmpty()) {
-				renderContext.centeredText(font, Component.literal(linkingStatus), cx, btnY - 20, 0xFF88FF88);
+				UIDraw.centeredText(renderContext, linkingStatus, cx, btnY - 20, UITheme.Colors.ACCENT_HOVER);
 			}
 			if (pendingAuthUrl != null) {
-				renderContext.centeredText(font, Component.literal("Browser didn't open? Copy the URL and paste it manually."),
-					cx, btnY + 30, 0xFF888888);
+				UIDraw.centeredText(renderContext, "Browser didn't open? Copy the URL and paste it manually.", cx, btnY + 30, UITheme.Colors.TEXT_MUTED);
 			}
 		}
 

@@ -1,5 +1,7 @@
 package com.choculaterie.vanilib.gui.widget;
 
+import com.choculaterie.vanilib.gui.theme.UIDraw;
+import com.choculaterie.vanilib.gui.theme.UIIcon;
 import com.choculaterie.vanilib.gui.theme.UITheme;
 import com.choculaterie.vanilib.util.FormatUtils;
 import net.minecraft.client.Minecraft;
@@ -88,7 +90,7 @@ public class CardEntryWidget<T> implements Renderable, GuiEventListener {
 	private void drawWrappedText(GuiGraphicsExtractor context, String text, int textX, int textY, int maxWidth, int color) {
 		int lineY = textY;
 		for (String line : wrappedLines(text, maxWidth)) {
-			context.text(client.font, line, textX, lineY, color);
+			UIDraw.text(context, line, textX, lineY, color);
 			lineY += LINE_HEIGHT;
 		}
 	}
@@ -97,15 +99,9 @@ public class CardEntryWidget<T> implements Renderable, GuiEventListener {
 	public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
 		hovered = mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + calculatedHeight;
 
-		int bgColor = hovered ? UITheme.Colors.BUTTON_BG_HOVER : UITheme.Colors.BUTTON_BG;
-		context.fill(x, y, x + width, y + calculatedHeight, bgColor);
-
-		int borderWidth = UITheme.Dimensions.BORDER_WIDTH;
-		int borderColor = UITheme.Colors.BUTTON_BORDER;
-		context.fill(x, y, x + width, y + borderWidth, borderColor);
-		context.fill(x, y + calculatedHeight - borderWidth, x + width, y + calculatedHeight, borderColor);
-		context.fill(x, y, x + borderWidth, y + calculatedHeight, borderColor);
-		context.fill(x + width - borderWidth, y, x + width, y + calculatedHeight, borderColor);
+		int bgColor = hovered ? UITheme.Colors.SURFACE_HOVER : UITheme.Colors.SURFACE;
+		int borderColor = hovered ? UITheme.Colors.SCROLLBAR_THUMB_HOVER : UITheme.Colors.PANEL_BORDER;
+		UIDraw.panel(context, x, y, x + width, y + calculatedHeight, bgColor, borderColor);
 
 		int contentWidth = width - UITheme.Dimensions.PADDING * 2;
 		int currentY = y + UITheme.Dimensions.PADDING;

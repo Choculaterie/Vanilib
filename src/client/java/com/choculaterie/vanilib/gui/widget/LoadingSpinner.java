@@ -2,27 +2,31 @@ package com.choculaterie.vanilib.gui.widget;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.resources.Identifier;
 
 public class LoadingSpinner implements Renderable {
-	private static final int SPINNER_SIZE = 32;
-	private static final int BLOCK_SIZE = 3;
-	private static final int NUM_BLOCKS = 8;
-	private static final float FADE_SPEED = 0.03f;
-	private static final float FULL_OPACITY = 1.0f;
-	private static final float MEDIUM_OPACITY = 0.5f;
-	private static final float DIM_OPACITY = 0.15f;
-	private static final float CLOSE_DISTANCE = 0.5f;
-	private static final float TRAIL_DISTANCE = 1.5f;
-	private static final float TRAIL_FADE = 0.3f;
-	private static final int WHITE_COLOR = 0x00FFFFFF;
+	private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath("vanilib", "textures/gui/loading.png");
+	private static final int FRAME_WIDTH = 19;
+	private static final int FRAME_HEIGHT = 18;
+	private static final int[] FRAME_MS = {600, 100, 80, 60, 40, 600, 100, 80, 60, 40};
+	private static final int CYCLE_MS = totalDuration();
+	private static final int DEFAULT_WIDTH = 32;
 
 	private int x;
 	private int y;
-	private float animationTime = 0.0f;
+	private final int width;
+	private final int height;
 
 	public LoadingSpinner(int x, int y) {
+		this(x, y, DEFAULT_WIDTH);
+	}
+
+	public LoadingSpinner(int x, int y, int width) {
 		this.x = x;
 		this.y = y;
+		this.width = Math.max(FRAME_WIDTH, width);
+		this.height = Math.round(this.width * FRAME_HEIGHT / (float) FRAME_WIDTH);
 	}
 
 	public void setPosition(int x, int y) {
@@ -32,54 +36,31 @@ public class LoadingSpinner implements Renderable {
 
 	@Override
 	public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
-		animationTime += FADE_SPEED;
-		if (animationTime >= NUM_BLOCKS) {
-			animationTime -= NUM_BLOCKS;
-		}
-
-		int centerX = x + SPINNER_SIZE / 2;
-		int centerY = y + SPINNER_SIZE / 2;
-		int radius = SPINNER_SIZE / 2 - BLOCK_SIZE;
-
-		for (int i = 0; i < NUM_BLOCKS; i++) {
-			float angle = (i * 360.0f / NUM_BLOCKS);
-			double angleRad = Math.toRadians(angle);
-			int blockX = (int) (centerX + Math.cos(angleRad) * radius) - BLOCK_SIZE / 2;
-			int blockY = (int) (centerY + Math.sin(angleRad) * radius) - BLOCK_SIZE / 2;
-
-			float distance = calculateDistance(i);
-			float opacity = calculateOpacity(distance);
-
-			int alpha = (int) (opacity * 255);
-			int color = (alpha << 24) | WHITE_COLOR;
-
-			context.fill(blockX, blockY, blockX + BLOCK_SIZE, blockY + BLOCK_SIZE, color);
-		}
+		int frame = currentFrame();
+		context.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, x, y, 0, frame * FRAME_HEIGHT,
+				getWidth(), getHeight(), FRAME_WIDTH, FRAME_HEIGHT, FRAME_WIDTH, FRAME_HEIGHT * FRAME_MS.length);
 	}
 
 	public int getWidth() {
-		return SPINNER_SIZE;
+		return width;
 	}
 
 	public int getHeight() {
-		return SPINNER_SIZE;
+		return height;
 	}
 
-	private float calculateDistance(int blockIndex) {
-		float distance = Math.abs(animationTime - blockIndex);
-		if (distance > NUM_BLOCKS / 2.0f) {
-			distance = NUM_BLOCKS - distance;
+	private static int currentFrame() {
+		long t = System.currentTimeMillis() % CYCLE_MS;
+		for (int i = 0; i < FRAME_MS.length; i++) {
+			t -= FRAME_MS[i];
+			if (t < 0) return i;
 		}
-		return distance;
+		return 0;
 	}
 
-	private float calculateOpacity(float distance) {
-		if (distance < CLOSE_DISTANCE) {
-			return FULL_OPACITY;
-		} else if (distance < TRAIL_DISTANCE) {
-			return MEDIUM_OPACITY - (distance - CLOSE_DISTANCE) * TRAIL_FADE;
-		} else {
-			return DIM_OPACITY;
-		}
+	private static int totalDuration() {
+		int sum = 0;
+		for (int ms : FRAME_MS) sum += ms;
+		return sum;
 	}
 }

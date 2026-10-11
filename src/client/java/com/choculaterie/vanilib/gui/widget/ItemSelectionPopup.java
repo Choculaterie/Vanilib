@@ -1,5 +1,8 @@
 package com.choculaterie.vanilib.gui.widget;
 
+import com.choculaterie.vanilib.gui.theme.ButtonStyle;
+import com.choculaterie.vanilib.gui.theme.UIDraw;
+import com.choculaterie.vanilib.gui.theme.UIIcon;
 import com.choculaterie.vanilib.gui.theme.UITheme;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -13,7 +16,7 @@ import java.util.function.Function;
 import com.mojang.blaze3d.platform.InputConstants;
 
 public class ItemSelectionPopup<T> implements Renderable {
-	private static final int ITEM_HEIGHT = 24;
+	private static final int ITEM_HEIGHT = 25;
 	private static final int HEADER_HEIGHT = 90;
 	private static final int BUTTON_WIDTH = 80;
 
@@ -54,6 +57,7 @@ public class ItemSelectionPopup<T> implements Renderable {
 			y + UITheme.Dimensions.PADDING + UITheme.Typography.LINE_HEIGHT + UITheme.Dimensions.PADDING,
 			searchFieldWidth, UITheme.Dimensions.BUTTON_HEIGHT, Component.literal("Search"));
 		searchField.setPlaceholder(Component.literal("Search..."));
+		searchField.setIcon(UIIcon.SEARCH);
 		searchField.setOnChanged(() -> onSearchChanged(searchField.getValue()));
 		searchField.setFocused(true);
 
@@ -68,6 +72,7 @@ public class ItemSelectionPopup<T> implements Renderable {
 			y + height - UITheme.Dimensions.PADDING - UITheme.Dimensions.BUTTON_HEIGHT,
 			BUTTON_WIDTH, UITheme.Dimensions.BUTTON_HEIGHT, Component.literal("Select"),
 			b -> trySelect());
+		selectButton.setStyle(ButtonStyle.PRIMARY);
 
 		updateScrollBar();
 	}
@@ -123,23 +128,16 @@ public class ItemSelectionPopup<T> implements Renderable {
 
 	@Override
 	public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
-		context.fill(0, 0, client.getWindow().getGuiScaledWidth(), client.getWindow().getGuiScaledHeight(), UITheme.Colors.OVERLAY_BG);
-		context.fill(x, y, x + width, y + height, UITheme.Colors.BUTTON_BG_DISABLED);
-
-		int border = UITheme.Dimensions.BORDER_WIDTH;
-		context.fill(x, y, x + width, y + border, UITheme.Colors.BUTTON_BORDER);
-		context.fill(x, y + height - border, x + width, y + height, UITheme.Colors.BUTTON_BORDER);
-		context.fill(x, y, x + border, y + height, UITheme.Colors.BUTTON_BORDER);
-		context.fill(x + width - border, y, x + width, y + height, UITheme.Colors.BUTTON_BORDER);
-
-		context.centeredText(client.font, title, x + width / 2, y + UITheme.Dimensions.PADDING, UITheme.Colors.TEXT_PRIMARY);
+		UIDraw.overlay(context);
+		UIDraw.modalFrame(context, x, y, width, height);
+		UIDraw.modalTitle(context, title, x, y + UITheme.Dimensions.PADDING, width);
 		searchField.extractRenderState(context, mouseX, mouseY, delta);
 
 		int listY = getListY();
 		int listHeight = getListHeight();
 		int listRightEdge = getListRightEdge();
 
-		context.fill(x + UITheme.Dimensions.PADDING, listY, listRightEdge, listY + listHeight, UITheme.Colors.PANEL_BG);
+		UIDraw.panel(context, x + UITheme.Dimensions.PADDING, listY, listRightEdge, listY + listHeight, UITheme.Colors.FIELD_BG, UITheme.Colors.FIELD_BORDER);
 		context.enableScissor(x + UITheme.Dimensions.PADDING, listY, listRightEdge, listY + listHeight);
 
 		int scrollOffset = (int) (scrollBar.getScrollPercentage() * getMaxScroll());
@@ -151,9 +149,16 @@ public class ItemSelectionPopup<T> implements Renderable {
 			boolean isHovered = mouseX >= x + UITheme.Dimensions.PADDING && mouseX < listRightEdge
 				&& mouseY >= itemY && mouseY < itemY + ITEM_HEIGHT;
 
-			int bgColor = isSelected ? 0xFF505050 : isHovered ? 0xFF404040 : UITheme.Colors.PANEL_BG;
-			context.fill(x + UITheme.Dimensions.PADDING + 2, itemY, listRightEdge - 2, itemY + ITEM_HEIGHT, bgColor);
-			context.text(client.font, displayNameFn.apply(item), x + UITheme.Dimensions.PADDING + 4, itemY + 8, UITheme.Colors.TEXT_PRIMARY);
+			int rowX1 = x + UITheme.Dimensions.PADDING + 1;
+			int rowX2 = listRightEdge - 1;
+			if (isSelected) {
+				context.fill(rowX1, itemY, rowX2, itemY + ITEM_HEIGHT, UITheme.Colors.SURFACE_SELECTED);
+				context.fill(rowX1, itemY, rowX1 + 2, itemY + ITEM_HEIGHT, UITheme.Colors.ACCENT);
+			} else if (isHovered) {
+				context.fill(rowX1, itemY, rowX2, itemY + ITEM_HEIGHT, UITheme.Colors.SURFACE_HOVER);
+			}
+			int rowText = isSelected ? UITheme.Colors.TEXT_HIGHLIGHT : isHovered ? UITheme.Colors.TEXT_PRIMARY : UITheme.Colors.TEXT_SUBTITLE;
+			UIDraw.text(context, UIDraw.ellipsize(displayNameFn.apply(item), rowX2 - rowX1 - 10), x + UITheme.Dimensions.PADDING + 6, itemY + (ITEM_HEIGHT - 8) / 2, rowText);
 		}
 
 		context.disableScissor();
@@ -184,10 +189,13 @@ public class ItemSelectionPopup<T> implements Renderable {
 		}
 
 		if (isInside(cancelButton, mouseX, mouseY)) {
+
+		    UIDraw.playClick();
 			if (onCancel != null) onCancel.run();
 			return true;
 		}
 		if (isInside(selectButton, mouseX, mouseY)) {
+		    UIDraw.playClick();
 			trySelect();
 			return true;
 		}

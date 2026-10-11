@@ -1,5 +1,9 @@
 package com.choculaterie.vanilib.gui.screen;
 
+import com.choculaterie.vanilib.gui.theme.ButtonStyle;
+import com.choculaterie.vanilib.gui.theme.UIDraw;
+import com.choculaterie.vanilib.gui.theme.UIIcon;
+import com.choculaterie.vanilib.gui.theme.UITheme;
 import com.choculaterie.vanilib.gui.widget.CustomButton;
 import com.choculaterie.vanilib.gui.widget.ScrollBar;
 import com.choculaterie.vanilib.gui.widget.ToastManager;
@@ -17,7 +21,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 
 public class DirectoryPickerScreen extends Screen {
 	private static final int PADDING = 10;
-	private static final int BUTTON_HEIGHT = 20;
+	private static final int BUTTON_HEIGHT = 21;
 	private static final int ITEM_HEIGHT = 25;
 	private static final int SCROLLBAR_WIDTH = 8;
 	private static final int SCROLLBAR_PADDING = 2;
@@ -82,14 +86,14 @@ public class DirectoryPickerScreen extends Screen {
 
 		int upButtonWidth = isVeryCompact ? 30 : (isCompact ? 45 : 60);
 		int selectButtonWidth = isVeryCompact ? 100 : (isCompact ? 150 : 200);
-		String upLabel = isVeryCompact ? "↑" : "Up ↑";
+		String upLabel = isVeryCompact ? "" : "Up";
 		String selectLabel = isVeryCompact ? "Select" : (isCompact ? "Select Folder" : "Select This Folder");
 
 		this.addRenderableWidget(new CustomButton(PADDING, PADDING, BUTTON_HEIGHT, BUTTON_HEIGHT,
 			Component.literal("←"), button -> onClose()));
 
 		this.addRenderableWidget(new CustomButton(PADDING * 2 + BUTTON_HEIGHT, PADDING, upButtonWidth, BUTTON_HEIGHT,
-			Component.literal(upLabel), button -> goUpDirectory()));
+			Component.literal(upLabel), button -> goUpDirectory()).setIcon(UIIcon.CHEVRON_UP));
 
 		int listY = getListY();
 		int listHeight = getListHeight();
@@ -97,7 +101,8 @@ public class DirectoryPickerScreen extends Screen {
 		int selectButtonY = listBottom + (this.height - listBottom - BUTTON_HEIGHT) / 2;
 
 		this.addRenderableWidget(new CustomButton(this.width / 2 - selectButtonWidth / 2, selectButtonY,
-			selectButtonWidth, BUTTON_HEIGHT, Component.literal(selectLabel), button -> selectCurrentDirectory()));
+			selectButtonWidth, BUTTON_HEIGHT, Component.literal(selectLabel), button -> selectCurrentDirectory())
+			.setStyle(ButtonStyle.PRIMARY));
 
 		scrollBar = new ScrollBar(this.width - PADDING - SCROLLBAR_WIDTH, listY, listHeight);
 		scrollBar.setScrollData(directories.size() * ITEM_HEIGHT, listHeight);
@@ -176,12 +181,14 @@ public class DirectoryPickerScreen extends Screen {
 
 	@Override
 	public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
-		context.fill(0, 0, this.width, this.height, 0xFF202020);
+		context.fill(0, 0, this.width, this.height, UITheme.Colors.BACKGROUND);
 
 		super.extractRenderState(context, mouseX, mouseY, delta);
 
 		String currentPath = currentDirectory != null ? currentDirectory.getAbsolutePath() : "";
-		context.text(this.font, "Current: " + currentPath, PADDING, PADDING * 3 + BUTTON_HEIGHT, 0xFFFFFFFF);
+		UIDraw.text(context, "Current:", PADDING, PADDING * 3 + BUTTON_HEIGHT, UITheme.Colors.TEXT_MUTED);
+		int pathX = PADDING + this.font.width("Current: ");
+		UIDraw.text(context, UIDraw.ellipsize(currentPath, this.width - pathX - PADDING), pathX, PADDING * 3 + BUTTON_HEIGHT, UITheme.Colors.TEXT_PRIMARY);
 
 		int listY = getListY();
 		int listHeight = getListHeight();
@@ -190,7 +197,7 @@ public class DirectoryPickerScreen extends Screen {
 		boolean scrollBarShowing = scrollBar != null && scrollBar.isVisible();
 		int panelRight = scrollBarShowing ? listRightEdge : this.width - PADDING;
 
-		context.fill(PADDING, listY, panelRight, listY + listHeight, 0xFF151515);
+		UIDraw.panel(context, PADDING, listY, panelRight, listY + listHeight, UITheme.Colors.FIELD_BG, UITheme.Colors.FIELD_BORDER);
 		context.enableScissor(PADDING, listY, panelRight, listY + listHeight);
 
 		for (int i = scrollOffset; i < Math.min(directories.size(), scrollOffset + maxVisibleItems); i++) {
@@ -200,9 +207,18 @@ public class DirectoryPickerScreen extends Screen {
 			boolean isHovered = mouseX >= PADDING && mouseX < listRightEdge && mouseY >= itemY && mouseY < itemY + ITEM_HEIGHT;
 			boolean isSelected = i == selectedIndex;
 
-			int bgColor = isSelected ? 0xFF404040 : (isHovered ? 0xFF2A2A2A : 0xFF1A1A1A);
-			context.fill(PADDING + 2, itemY + 2, panelRight - 2, itemY + ITEM_HEIGHT - 2, bgColor);
-			context.text(this.font, "📁 " + dir.getName(), PADDING + 5, itemY + 8, 0xFFFFFFFF);
+			int rowX1 = PADDING + 1;
+			int rowX2 = panelRight - 1;
+			if (isSelected) {
+				context.fill(rowX1, itemY, rowX2, itemY + ITEM_HEIGHT, UITheme.Colors.SURFACE_SELECTED);
+				context.fill(rowX1, itemY, rowX1 + 2, itemY + ITEM_HEIGHT, UITheme.Colors.ACCENT);
+			} else if (isHovered) {
+				context.fill(rowX1, itemY, rowX2, itemY + ITEM_HEIGHT, UITheme.Colors.SURFACE_HOVER);
+			}
+			int rowColor = isSelected ? UITheme.Colors.TEXT_HIGHLIGHT : (isHovered ? UITheme.Colors.TEXT_PRIMARY : UITheme.Colors.TEXT_SUBTITLE);
+			int rowTextY = itemY + (ITEM_HEIGHT - UITheme.Typography.CAP_HEIGHT) / 2;
+			UIIcon.FOLDER.drawOnText(context, PADDING + 7, rowTextY, isSelected ? UITheme.Colors.ACCENT : UITheme.Colors.TEXT_MUTED);
+			UIDraw.text(context, UIDraw.ellipsize(dir.getName(), rowX2 - PADDING - 30), PADDING + 7 + UIIcon.SIZE + 4, rowTextY, rowColor);
 		}
 
 		context.disableScissor();

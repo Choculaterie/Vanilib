@@ -122,15 +122,18 @@ public class ScrollBar implements Renderable {
     }
 
     private void drawScrollBar(GuiGraphicsExtractor context, double handleHeight) {
-        context.fill(x, y, x + UITheme.Dimensions.SCROLLBAR_WIDTH, y + height, UITheme.Colors.PANEL_BG);
+        if (!isVisible()) return;
 
-        if (isVisible()) {
-            double handleY = getHandleY();
-            int handleColor = (isHovered || isDragging) ? UITheme.Colors.SCROLLBAR_THUMB_HOVER
-                    : UITheme.Colors.SCROLLBAR_THUMB;
-            context.fill(x, (int) handleY, x + UITheme.Dimensions.SCROLLBAR_WIDTH, (int) (handleY + handleHeight),
-                    handleColor);
-        }
+        int w = UITheme.Dimensions.SCROLLBAR_WIDTH;
+        int trackX = x + w / 2 - 1;
+        context.fill(trackX, y, trackX + 2, y + height, UITheme.Colors.SCROLLBAR_BG);
+
+        double handleY = getHandleY();
+        boolean active = isHovered || isDragging;
+        int handleColor = active ? UITheme.Colors.SCROLLBAR_THUMB_HOVER : UITheme.Colors.SCROLLBAR_THUMB;
+        int thumbX1 = active ? x + 1 : trackX - 1;
+        int thumbX2 = active ? x + w - 1 : trackX + 3;
+        context.fill(thumbX1, (int) handleY, thumbX2, (int) (handleY + handleHeight), handleColor);
     }
 
     @Override

@@ -1,5 +1,7 @@
 package com.choculaterie.vanilib.gui.widget;
 
+import com.choculaterie.vanilib.gui.theme.UIDraw;
+import com.choculaterie.vanilib.gui.theme.UIIcon;
 import com.choculaterie.vanilib.gui.theme.UITheme;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 
@@ -19,11 +21,11 @@ public class Toast {
     private static final long ERROR_DISPLAY_DURATION = 8000;
     private static final int ACCENT_BORDER_WIDTH = 4;
     private static final int BUTTON_SPACING     = 4;
-    private static final int CLOSE_BUTTON_SIZE  = 16;
+    private static final int CLOSE_BUTTON_SIZE  = 17;
     private static final int TEXT_LEFT          = 28;
     private static final int TEXT_RIGHT_GAP     = 6;
     private static final int COPY_BUTTON_WIDTH  = 50;
-    private static final int COPY_BUTTON_HEIGHT = 18;
+    private static final int COPY_BUTTON_HEIGHT = 19;
     private static final int Y_TRANSITION_DURATION = 400;
     private static final int TOAST_SPACING      = 5;
 
@@ -263,43 +265,30 @@ public class Toast {
     }
 
     private void renderToastBackground(GuiGraphicsExtractor context, int currentX, int toastHeight, int alpha) {
-        int bgColor = UITheme.Colors.BUTTON_BG_DISABLED;
-        int bgColorWithAlpha = (alpha << 24) | (bgColor & 0x00FFFFFF);
-        context.fill(currentX, yPosition, currentX + TOAST_WIDTH, yPosition + toastHeight, bgColorWithAlpha);
+        int x2 = currentX + TOAST_WIDTH;
+        int y2 = yPosition + toastHeight;
+        boolean hovered = isWithinBounds(mouseX, mouseY, currentX, yPosition, TOAST_WIDTH, toastHeight);
 
-        int borderColor = getAccentColor();
-        int borderColorWithAlpha = (alpha << 24) | (borderColor & 0x00FFFFFF);
-        context.fill(currentX, yPosition, currentX + ACCENT_BORDER_WIDTH, yPosition + toastHeight, borderColorWithAlpha);
-
-        int topBorderColor = UITheme.Colors.PANEL_BORDER;
-        int topBorderColorWithAlpha = (alpha << 24) | (topBorderColor & 0x00FFFFFF);
-        context.fill(currentX, yPosition, currentX + TOAST_WIDTH, yPosition + UITheme.Dimensions.BORDER_WIDTH, topBorderColorWithAlpha);
-        context.fill(currentX, yPosition + toastHeight - UITheme.Dimensions.BORDER_WIDTH, currentX + TOAST_WIDTH, yPosition + toastHeight, topBorderColorWithAlpha);
-        context.fill(currentX + TOAST_WIDTH - UITheme.Dimensions.BORDER_WIDTH, yPosition, currentX + TOAST_WIDTH, yPosition + toastHeight, topBorderColorWithAlpha);
+        context.fill(currentX + 2, yPosition + 2, x2 + 2, y2 + 2, UIDraw.withAlpha(UITheme.Colors.OUTLINE, alpha / 2));
+        context.fill(currentX, yPosition, x2, y2, UIDraw.withAlpha(getBackgroundColor(), alpha));
+        UIDraw.outline(context, currentX, yPosition, x2, y2, UIDraw.withAlpha(UITheme.Colors.OUTLINE, alpha));
+        int border = hovered ? UITheme.Colors.TOAST_BORDER_HOVER : UITheme.Colors.TOAST_BORDER;
+        UIDraw.outline(context, currentX + 1, yPosition + 1, x2 - 1, y2 - 1, UIDraw.withAlpha(border, alpha));
+        context.fill(currentX + 1, yPosition + 1, currentX + 1 + ACCENT_BORDER_WIDTH, y2 - 1, UIDraw.withAlpha(getAccentColor(), alpha));
     }
 
     private void renderIcon(GuiGraphicsExtractor context, net.minecraft.client.gui.Font textRenderer, int currentX, int alpha) {
-        String icon = getTypeIcon();
-        int iconColor = getAccentColor();
-        int iconColorWithAlpha = (alpha << 24) | (iconColor & 0x00FFFFFF);
-        context.text(
-                textRenderer,
-                icon,
-                currentX + UITheme.Typography.LINE_HEIGHT,
-                yPosition + UITheme.Typography.TEXT_HEIGHT,
-                iconColorWithAlpha,
-                false
-        );
+        getTypeIcon().drawOnText(context, currentX + UITheme.Typography.LINE_HEIGHT, yPosition + UITheme.Typography.TEXT_HEIGHT,
+                UIDraw.withAlpha(getAccentColor(), alpha));
     }
 
     private void renderMessage(GuiGraphicsExtractor context, net.minecraft.client.gui.Font textRenderer, int currentX, int alpha) {
         int textX = currentX + TEXT_LEFT;
         int textY = yPosition + UITheme.Typography.TEXT_HEIGHT;
-        int textColor = UITheme.Colors.TEXT_PRIMARY;
-        int textColorWithAlpha = (alpha << 24) | (textColor & 0x00FFFFFF);
+        int color = UIDraw.withAlpha(UITheme.Colors.TEXT_PRIMARY, alpha);
 
         for (String line : getWrappedLines(textRenderer)) {
-            context.text(textRenderer, line, textX, textY, textColorWithAlpha, false);
+            UIDraw.text(context, line, textX, textY, color);
             textY += UITheme.Typography.LINE_HEIGHT;
         }
     }
@@ -308,30 +297,33 @@ public class Toast {
         int closeX = currentX + TOAST_WIDTH - CLOSE_BUTTON_SIZE - BUTTON_SPACING;
         int closeY = yPosition + BUTTON_SPACING;
         boolean isHovered = isWithinBounds(mouseX, mouseY, closeX, closeY, CLOSE_BUTTON_SIZE, CLOSE_BUTTON_SIZE);
-        drawFadedButton(context, textRenderer, closeX, closeY, CLOSE_BUTTON_SIZE, CLOSE_BUTTON_SIZE, "✕", isHovered, alpha);
+        if (isHovered) {
+            context.fill(closeX, closeY, closeX + CLOSE_BUTTON_SIZE, closeY + CLOSE_BUTTON_SIZE,
+                    UIDraw.withAlpha(UITheme.Colors.SURFACE_HOVER, alpha));
+        }
+        int color = isHovered ? UITheme.Colors.TEXT_HIGHLIGHT : UITheme.Colors.TEXT_MUTED;
+        UIIcon.CLOSE.drawCentered(context, closeX + CLOSE_BUTTON_SIZE / 2, closeY + CLOSE_BUTTON_SIZE / 2, UIDraw.withAlpha(color, alpha));
     }
 
     private void renderCopyButton(GuiGraphicsExtractor context, net.minecraft.client.gui.Font textRenderer, int currentX, int toastHeight, int alpha) {
         int copyX = currentX + TOAST_WIDTH - COPY_BUTTON_WIDTH - UITheme.Dimensions.PADDING_SMALL - 3;
         int copyY = yPosition + toastHeight - COPY_BUTTON_HEIGHT - 6;
         boolean isHovered = isWithinBounds(mouseX, mouseY, copyX, copyY, COPY_BUTTON_WIDTH, COPY_BUTTON_HEIGHT);
-        drawFadedButton(context, textRenderer, copyX, copyY, COPY_BUTTON_WIDTH, COPY_BUTTON_HEIGHT, "Copy", isHovered, alpha);
+        int fill = UIDraw.withAlpha(isHovered ? UITheme.Colors.BUTTON_BG_HOVER : UITheme.Colors.BUTTON_BG, alpha);
+        int border = UIDraw.withAlpha(isHovered ? UITheme.Colors.OUTLINE_HOVER : UITheme.Colors.OUTLINE, alpha);
+        UIDraw.bevel(context, copyX, copyY, copyX + COPY_BUTTON_WIDTH, copyY + COPY_BUTTON_HEIGHT, fill, border);
+        int color = UIDraw.withAlpha(isHovered ? UITheme.Colors.TEXT_HIGHLIGHT : UITheme.Colors.TEXT_PRIMARY, alpha);
+        UIDraw.centeredText(context, "Copy", copyX + COPY_BUTTON_WIDTH / 2,
+                copyY + (COPY_BUTTON_HEIGHT - UITheme.Typography.CAP_HEIGHT) / 2, color);
     }
 
-    private void drawFadedButton(GuiGraphicsExtractor context, net.minecraft.client.gui.Font textRenderer,
-                                  int x, int y, int width, int height, String label, boolean isHovered, int alpha) {
-        int bgColor = isHovered ? UITheme.Colors.BUTTON_BG_HOVER : UITheme.Colors.BUTTON_BG;
-        context.fill(x, y, x + width, y + height, (alpha << 24) | (bgColor & 0x00FFFFFF));
-
-        int borderColor = (alpha << 24) | (UITheme.Colors.BUTTON_BORDER & 0x00FFFFFF);
-        int bw = UITheme.Dimensions.BORDER_WIDTH;
-        context.fill(x, y, x + width, y + bw, borderColor);
-        context.fill(x, y + height - bw, x + width, y + height, borderColor);
-        context.fill(x, y, x + bw, y + height, borderColor);
-        context.fill(x + width - bw, y, x + width, y + height, borderColor);
-
-        int textColor = (alpha << 24) | (UITheme.Colors.TEXT_PRIMARY & 0x00FFFFFF);
-        context.centeredText(textRenderer, label, x + width / 2, y + (height - UITheme.Typography.TEXT_HEIGHT) / 2 + 1, textColor);
+    private int getBackgroundColor() {
+        return switch (type) {
+            case SUCCESS -> UITheme.Colors.TOAST_BG_SUCCESS;
+            case ERROR   -> UITheme.Colors.TOAST_BG_ERROR;
+            case INFO    -> UITheme.Colors.TOAST_BG_INFO;
+            case WARNING -> UITheme.Colors.TOAST_BG_WARNING;
+        };
     }
 
     private int getAccentColor() {
@@ -343,12 +335,12 @@ public class Toast {
         };
     }
 
-    private String getTypeIcon() {
+    private UIIcon getTypeIcon() {
         return switch (type) {
-            case SUCCESS -> "✓";
-            case ERROR   -> "✗";
-            case WARNING -> "⚠";
-            case INFO    -> "ℹ";
+            case SUCCESS -> UIIcon.CHECK;
+            case ERROR   -> UIIcon.CLOSE;
+            case WARNING -> UIIcon.ALERT;
+            case INFO    -> UIIcon.INFO;
         };
     }
 

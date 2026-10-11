@@ -1,5 +1,7 @@
 package com.choculaterie.vanilib.gui.widget;
 
+import com.choculaterie.vanilib.gui.theme.ButtonStyle;
+import com.choculaterie.vanilib.gui.theme.UIDraw;
 import com.choculaterie.vanilib.gui.theme.UITheme;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -119,6 +121,16 @@ public class ConfirmPopup implements Renderable, GuiEventListener {
         return lines.isEmpty() ? List.of(text) : lines;
     }
 
+    private static boolean isDestructive(String label) {
+        String l = label.toLowerCase();
+        return l.contains("delete") || l.contains("remove") || l.contains("overwrite") || l.contains("discard");
+    }
+
+    public ConfirmPopup setConfirmStyle(ButtonStyle style) {
+        if (confirmButton != null) confirmButton.setStyle(style);
+        return this;
+    }
+
     private void initWidgets() {
         int buttonY = y + popupHeight - UITheme.Dimensions.PADDING - UITheme.Dimensions.BUTTON_HEIGHT;
         int buttonWidth = (POPUP_WIDTH - UITheme.Dimensions.PADDING * 3) / 2;
@@ -140,6 +152,7 @@ public class ConfirmPopup implements Renderable, GuiEventListener {
                 Component.literal(confirmButtonText),
                 button -> onConfirm.run()
         );
+        confirmButton.setStyle(isDestructive(confirmButtonText) ? ButtonStyle.DANGER : ButtonStyle.PRIMARY);
     }
 
     @Override
@@ -163,22 +176,9 @@ public class ConfirmPopup implements Renderable, GuiEventListener {
             wasEscapePressed = escapePressed;
         }
 
-        context.fill(0, 0, client.getWindow().getGuiScaledWidth(), client.getWindow().getGuiScaledHeight(), UITheme.Colors.OVERLAY_BG);
-
-        context.fill(x, y, x + POPUP_WIDTH, y + popupHeight, UITheme.Colors.BUTTON_BG_DISABLED);
-
-        context.fill(x, y, x + POPUP_WIDTH, y + UITheme.Dimensions.BORDER_WIDTH, UITheme.Colors.BUTTON_BORDER);
-        context.fill(x, y + popupHeight - UITheme.Dimensions.BORDER_WIDTH, x + POPUP_WIDTH, y + popupHeight, UITheme.Colors.BUTTON_BORDER);
-        context.fill(x, y, x + UITheme.Dimensions.BORDER_WIDTH, y + popupHeight, UITheme.Colors.BUTTON_BORDER);
-        context.fill(x + POPUP_WIDTH - UITheme.Dimensions.BORDER_WIDTH, y, x + POPUP_WIDTH, y + popupHeight, UITheme.Colors.BUTTON_BORDER);
-
-        context.centeredText(
-                client.font,
-                title,
-                x + POPUP_WIDTH / 2,
-                y + UITheme.Dimensions.PADDING,
-                UITheme.Colors.TEXT_PRIMARY
-        );
+        UIDraw.overlay(context);
+        UIDraw.modalFrame(context, x, y, POPUP_WIDTH, popupHeight);
+        UIDraw.modalTitle(context, title, x, y + UITheme.Dimensions.PADDING, POPUP_WIDTH);
 
         int messageAreaY = y + UITheme.Dimensions.PADDING + UITheme.Typography.LINE_HEIGHT + UITheme.Dimensions.PADDING;
         int messageAreaHeight = visibleMessageHeight;
@@ -188,13 +188,7 @@ public class ConfirmPopup implements Renderable, GuiEventListener {
         int messageY = messageAreaY - (int)scrollOffset;
         for (String line : wrappedMessage) {
             if (messageY + UITheme.Typography.LINE_HEIGHT >= messageAreaY && messageY < messageAreaY + messageAreaHeight) {
-                context.text(
-                        client.font,
-                        line,
-                        x + UITheme.Dimensions.PADDING,
-                        messageY,
-                        UITheme.Colors.TEXT_TAG
-                );
+                UIDraw.text(context, line, x + UITheme.Dimensions.PADDING, messageY, UITheme.Colors.TEXT_SUBTITLE);
             }
             messageY += UITheme.Typography.LINE_HEIGHT;
         }
@@ -231,6 +225,7 @@ public class ConfirmPopup implements Renderable, GuiEventListener {
                                   mouseY >= cancelButton.getY() &&
                                   mouseY < cancelButton.getY() + cancelButton.getHeight();
             if (isOverCancel) {
+                UIDraw.playClick();
                 onCancel.run();
                 return true;
             }
@@ -242,6 +237,7 @@ public class ConfirmPopup implements Renderable, GuiEventListener {
                                    mouseY >= confirmButton.getY() &&
                                    mouseY < confirmButton.getY() + confirmButton.getHeight();
             if (isOverConfirm) {
+                UIDraw.playClick();
                 onConfirm.run();
                 return true;
             }

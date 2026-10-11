@@ -4,6 +4,7 @@ import com.choculaterie.vanilib.config.BooleanConfig;
 import com.choculaterie.vanilib.config.ConfigOption;
 import com.choculaterie.vanilib.config.ConfigType;
 import com.choculaterie.vanilib.config.OptionListConfig;
+import com.choculaterie.vanilib.gui.theme.UIDraw;
 import com.choculaterie.vanilib.gui.theme.UITheme;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -139,8 +140,8 @@ public class ConfigOptionWidget implements Renderable, GuiEventListener {
 
 	@Override
 	public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
-		int textY = y + (height - UITheme.Typography.TEXT_HEIGHT) / 2;
-		context.text(client.font, config.getName(), x, textY, UITheme.Colors.TEXT_PRIMARY);
+		int textY = y + (height - UITheme.Typography.CAP_HEIGHT) / 2;
+		UIDraw.text(context, config.getName(), x, textY, UITheme.Colors.TEXT_PRIMARY);
 
 		switch (config.getType()) {
 			case BOOLEAN -> toggleButton.extractRenderState(context, mouseX, mouseY, delta);
@@ -167,6 +168,7 @@ public class ConfigOptionWidget implements Renderable, GuiEventListener {
 				return true;
 			}
 			if (isInside(dropdownHeaderButton, mouseX, mouseY)) {
+			    UIDraw.playClick();
 				if (dropdownWidget.isOpen()) {
 					dropdownWidget.onClose();
 				} else {
@@ -176,6 +178,7 @@ public class ConfigOptionWidget implements Renderable, GuiEventListener {
 			}
 		} else if (config.getType() == ConfigType.BOOLEAN) {
 			if (isInside(toggleButton, mouseX, mouseY)) {
+			    UIDraw.playClick();
 				((BooleanConfig) config).toggle();
 				toggleButton.setToggled(((BooleanConfig) config).getValue());
 				return true;
@@ -189,6 +192,8 @@ public class ConfigOptionWidget implements Renderable, GuiEventListener {
 		}
 
 		if (resetButton.visible && isInside(resetButton, mouseX, mouseY)) {
+
+		    UIDraw.playClick();
 			config.resetToDefault();
 			syncControlsFromValue();
 			return true;

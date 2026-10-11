@@ -1,5 +1,6 @@
 package com.choculaterie.vanilib.gui.widget;
 
+import com.choculaterie.vanilib.gui.theme.UIDraw;
 import com.choculaterie.vanilib.gui.theme.UITheme;
 import net.minecraft.client.Minecraft;
 
@@ -13,10 +14,10 @@ public class ImageViewerWidget {
     private static final int NAV_AREA_HEIGHT = 40;
     private static final int NAV_AREA_BOTTOM_OFFSET = 40;
     private static final int NAV_BUTTON_WIDTH = 25;
-    private static final int NAV_BUTTON_HEIGHT = 16;
+    private static final int NAV_BUTTON_HEIGHT = 17;
     private static final int NAV_BUTTON_SPACING = UITheme.Dimensions.PADDING;
     private static final int TEXT_VERTICAL_OFFSET = 4;
-    private static final int NAV_BG_COLOR = 0xD0000000;
+    private static final int NAV_BG_COLOR = 0xE01C181A;
 
     private final Identifier imageTexture;
     private final int originalImageWidth;
@@ -152,7 +153,7 @@ public class ImageViewerWidget {
         int imageX = (screenWidth - displayWidth) / 2;
         int imageY = (screenHeight - displayHeight) / 2;
 
-        context.fill(0, 0, screenWidth, screenHeight, UITheme.Colors.PANEL_BG);
+        context.fill(0, 0, screenWidth, screenHeight, UITheme.Colors.BACKGROUND);
 
         if (imageTexture != null) {
             context.blit(imageTexture, imageX, imageY, imageX + displayWidth, imageY + displayHeight, 0.0f, 1.0f, 0.0f,
@@ -173,7 +174,7 @@ public class ImageViewerWidget {
 
         drawNavigationBackground(context, prevBtnX, navY, nextBtnX);
 
-        context.text(client.font, pageText, textX, textY, UITheme.Colors.TEXT_SUBTITLE);
+        UIDraw.text(context, pageText, textX, textY, UITheme.Colors.TEXT_SUBTITLE);
 
         if (prevButton != null) {
             prevButton.extractRenderState(context, mouseX, mouseY, delta);
@@ -189,7 +190,7 @@ public class ImageViewerWidget {
         int bgY = navY;
         int bgHeight = NAV_BUTTON_HEIGHT;
 
-        context.fill(bgX, bgY, bgX + bgWidth, bgY + bgHeight, NAV_BG_COLOR);
+        UIDraw.panel(context, bgX - 2, bgY - 2, bgX + bgWidth + 2, bgY + bgHeight + 2, NAV_BG_COLOR, UITheme.Colors.PANEL_BORDER);
     }
 
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
@@ -197,17 +198,22 @@ public class ImageViewerWidget {
             return false;
 
         if (isOverButton(closeButton, mouseX, mouseY)) {
+
+            UIDraw.playClick();
             onClose.run();
             return true;
         }
 
         if (totalImages > 1) {
             if (isOverButton(prevButton, mouseX, mouseY)) {
+                UIDraw.playClick();
                 onPrevious.run();
                 return true;
             }
 
             if (isOverButton(nextButton, mouseX, mouseY)) {
+
+                UIDraw.playClick();
                 onNext.run();
                 return true;
             }

@@ -1,5 +1,7 @@
 package com.choculaterie.vanilib.gui.widget;
 
+import com.choculaterie.vanilib.gui.theme.UIDraw;
+import com.choculaterie.vanilib.gui.theme.UIIcon;
 import com.choculaterie.vanilib.gui.theme.UITheme;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -13,7 +15,10 @@ public class CustomTextField extends EditBox {
 
 	private static final long KEY_REPEAT_DELAY = 50;
 
-	private static final int TEXT_PADDING = 4;
+	private static final int TEXT_PADDING = 5;
+	private static final int ICON_GAP = 4;
+
+	private UIIcon leadingIcon;
 
 	private static final long CURSOR_BLINK_MS = 500;
 
@@ -96,6 +101,15 @@ public class CustomTextField extends EditBox {
 		}
 	}
 
+	public CustomTextField setIcon(UIIcon icon) {
+		this.leadingIcon = icon;
+		return this;
+	}
+
+	private int leftPadding() {
+		return TEXT_PADDING + (leadingIcon != null ? UIIcon.SIZE + ICON_GAP : 0);
+	}
+
 	public void setPlaceholder(Component placeholder) {
 		this.placeholderText = placeholder;
 	}
@@ -128,7 +142,7 @@ public class CustomTextField extends EditBox {
 		handleKeyboardInput();
 
 		drawBackground(context);
-		drawBorder(context);
+		drawBorder(context, mouseX, mouseY);
 		drawTextContent(context, mouseX, mouseY);
 		drawClearButton(context, mouseX, mouseY);
 	}
@@ -163,7 +177,7 @@ public class CustomTextField extends EditBox {
 				onClearPressed.run();
 			}
 		} else if (isMouseDown && !wasClearButtonMouseDown && this.isFocused() && isOverTextArea(mouseX, mouseY)) {
-			int relativeX = mouseX - (this.getX() + TEXT_PADDING);
+			int relativeX = mouseX - (this.getX() + leftPadding());
 			int index = client.font.plainSubstrByWidth(this.getValue(), Math.max(0, relativeX)).length();
 			this.moveCursorTo(index, false);
 		}
@@ -273,30 +287,38 @@ public class CustomTextField extends EditBox {
 	}
 
 	private void drawBackground(GuiGraphicsExtractor context) {
-		context.fill(this.getX(), this.getY(),
-				this.getX() + this.getWidth(), this.getY() + this.getHeight(),
-				UITheme.Colors.FIELD_BG);
+		int x1 = this.getX();
+		int y1 = this.getY();
+		int x2 = x1 + this.getWidth();
+		int y2 = y1 + this.getHeight();
+		context.fill(x1, y1, x2, y2, UITheme.Colors.FIELD_BG);
+		context.fill(x1 + 1, y1 + 1, x2 - 1, y1 + 2, UIDraw.withAlpha(UITheme.Colors.OUTLINE, 0x90));
 	}
 
-	private void drawBorder(GuiGraphicsExtractor context) {
-		int borderColor = this.isFocused() ? UITheme.Colors.FIELD_BORDER_FOCUSED : UITheme.Colors.FIELD_BORDER;
-		int borderWidth = UITheme.Dimensions.BORDER_WIDTH;
-		int x = this.getX();
-		int y = this.getY();
-		int width  = this.getWidth();
-		int height = this.getHeight();
+	private void drawBorder(GuiGraphicsExtractor context, int mouseX, int mouseY) {
+		boolean hovered = mouseX >= this.getX() && mouseY >= this.getY()
+				&& mouseX < this.getX() + this.getWidth() && mouseY < this.getY() + this.getHeight();
+		int borderColor;
+		if (this.isFocused()) {
+			borderColor = UITheme.Colors.FIELD_BORDER_FOCUSED;
+		} else if (hovered) {
+			borderColor = UITheme.Colors.SCROLLBAR_THUMB_HOVER;
+		} else {
+			borderColor = UITheme.Colors.FIELD_BORDER;
+		}
+		UIDraw.outline(context, this.getX(), this.getY(), this.getX() + this.getWidth(), this.getY() + this.getHeight(), borderColor);
 
-		context.fill(x, y, x + width, y + borderWidth, borderColor);
-		context.fill(x, y + height - borderWidth, x + width, y + height, borderColor);
-		context.fill(x, y, x + borderWidth, y + height, borderColor);
-		context.fill(x + width - borderWidth, y, x + width, y + height, borderColor);
+		if (leadingIcon != null) {
+			int iconColor = this.isFocused() ? UITheme.Colors.ACCENT : UITheme.Colors.TEXT_MUTED;
+			leadingIcon.drawOnText(context, this.getX() + TEXT_PADDING, UIDraw.flatContentY(this.getY(), this.getHeight()), iconColor);
+		}
 	}
 
 	private void drawTextContent(GuiGraphicsExtractor context, int mouseX, int mouseY) {
-		int textY = this.getY() + (this.getHeight() - UITheme.Typography.TEXT_HEIGHT) / 2;
-		int textX = this.getX() + TEXT_PADDING;
+		int textY = this.getY() + (this.getHeight() - UITheme.Typography.CAP_HEIGHT) / 2;
+		int textX = this.getX() + leftPadding();
 
-		int maxTextWidth = this.getWidth() - TEXT_PADDING * 2 - (this.getValue().isEmpty() ? 0 : CLEAR_BUTTON_SIZE + 4);
+		int maxTextWidth = this.getWidth() - leftPadding() - TEXT_PADDING - (this.getValue().isEmpty() ? 0 : CLEAR_BUTTON_SIZE + 4);
 
 		String text = this.getValue();
 		if (text.isEmpty() && !this.isFocused()) {
@@ -308,7 +330,7 @@ public class CustomTextField extends EditBox {
 
 	private void drawPlaceholder(GuiGraphicsExtractor context, int x, int y) {
 		if (placeholderText != null) {
-			context.text(client.font, placeholderText, x, y, UITheme.Colors.TEXT_MUTED);
+			context.text(client.font, placeholderText, x, y, UITheme.Colors.TEXT_MUTED, false);
 		}
 	}
 
@@ -319,7 +341,7 @@ public class CustomTextField extends EditBox {
 		if (this.isFocused() && !this.getHighlighted().isEmpty()) {
 			drawSelectionHighlight(context, text, textX, textY);
 		}
-		context.text(client.font, text, textX, textY, color);
+		UIDraw.text(context, text, textX, textY, color);
 		context.disableScissor();
 
 		if (this.isFocused() && this.isActive()) {
@@ -338,7 +360,7 @@ public class CustomTextField extends EditBox {
 			String beforeCursor = text.substring(0, Math.min(cursorPos, text.length()));
 			int cursorX = textX + client.font.width(beforeCursor);
 			context.fill(cursorX, textY - 1, cursorX + UITheme.Dimensions.BORDER_WIDTH, textY + 9,
-					UITheme.Colors.TEXT_PRIMARY);
+					UITheme.Colors.ACCENT_HOVER);
 		}
 	}
 
@@ -349,13 +371,8 @@ public class CustomTextField extends EditBox {
 		int clearX = this.getX() + this.getWidth() - CLEAR_BUTTON_SIZE - 4;
 		int clearY = this.getY() + (this.getHeight() - CLEAR_BUTTON_SIZE) / 2;
 		boolean isHovered = isOverClearButton(mouseX, mouseY);
-		int clearColor = isHovered ? UITheme.Colors.TEXT_PRIMARY : UITheme.Colors.TEXT_MUTED;
-
-		String xSymbol = "✕";
-		int xWidth = client.font.width(xSymbol);
-		int xX = clearX + (CLEAR_BUTTON_SIZE - xWidth) / 2;
-		int xY = clearY + (CLEAR_BUTTON_SIZE - UITheme.Typography.TEXT_HEIGHT) / 2;
-		context.text(client.font, xSymbol, xX, xY, clearColor);
+		int clearColor = isHovered ? UITheme.Colors.TEXT_HIGHLIGHT : UITheme.Colors.TEXT_MUTED;
+		UIIcon.CLOSE.drawOnText(context, clearX + (CLEAR_BUTTON_SIZE - UIIcon.SIZE) / 2, UIDraw.flatContentY(this.getY(), this.getHeight()), clearColor);
 	}
 
 	private boolean isOverClearButton(int mouseX, int mouseY) {

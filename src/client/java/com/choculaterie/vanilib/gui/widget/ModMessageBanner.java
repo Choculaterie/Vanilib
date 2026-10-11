@@ -1,5 +1,7 @@
 package com.choculaterie.vanilib.gui.widget;
 
+import com.choculaterie.vanilib.gui.theme.UIDraw;
+import com.choculaterie.vanilib.gui.theme.UIIcon;
 import com.choculaterie.vanilib.gui.theme.UITheme;
 import com.choculaterie.vanilib.models.ModMessage;
 import net.minecraft.client.Minecraft;
@@ -11,14 +13,14 @@ import java.util.function.Consumer;
 import com.mojang.blaze3d.platform.InputConstants;
 
 public class ModMessageBanner implements Renderable, GuiEventListener {
-    private static final int BANNER_HEIGHT = 30;
+    private static final int BANNER_HEIGHT = 31;
     private static final int CLOSE_BUTTON_SIZE = UITheme.Dimensions.ICON_SMALL;
 
-    private static final int INFO_BG_COLOR = 0xE02196F3;
-    private static final int WARNING_BG_COLOR = 0xE0FF9800;
-    private static final int ERROR_BG_COLOR = 0xE0F44336;
-    private static final int DEFAULT_BG_COLOR = 0xE03A3A3A;
-    private static final int CLOSE_HOVER_COLOR = 0x40FFFFFF;
+    private static final int INFO_BG_COLOR = UITheme.Colors.TOAST_BG_INFO;
+    private static final int WARNING_BG_COLOR = UITheme.Colors.TOAST_BG_WARNING;
+    private static final int ERROR_BG_COLOR = UITheme.Colors.TOAST_BG_ERROR;
+    private static final int DEFAULT_BG_COLOR = UITheme.Colors.SURFACE;
+    private static final int CLOSE_HOVER_COLOR = UITheme.Colors.SURFACE_HOVER;
 
     private final Minecraft client;
     private int x;
@@ -101,6 +103,15 @@ public class ModMessageBanner implements Renderable, GuiEventListener {
         drawCloseButton(context, mouseX, mouseY);
     }
 
+    private static int accentFor(String type) {
+        if (type == null) return UITheme.Colors.ACCENT;
+        return switch (type.toLowerCase()) {
+            case "warning" -> UITheme.Colors.TOAST_ACCENT_WARNING;
+            case "error" -> UITheme.Colors.TOAST_ACCENT_ERROR;
+            default -> UITheme.Colors.TOAST_ACCENT_INFO;
+        };
+    }
+
     private void drawBackground(GuiGraphicsExtractor context, int bgColor) {
         context.fill(x, y, x + width, y + BANNER_HEIGHT, bgColor);
     }
@@ -108,6 +119,7 @@ public class ModMessageBanner implements Renderable, GuiEventListener {
     private void drawBorder(GuiGraphicsExtractor context) {
         context.fill(x, y + BANNER_HEIGHT - UITheme.Dimensions.BORDER_WIDTH,
                     x + width, y + BANNER_HEIGHT, UITheme.Colors.DIVIDER);
+        context.fill(x, y, x + 3, y + BANNER_HEIGHT - UITheme.Dimensions.BORDER_WIDTH, accentFor(message.type()));
     }
 
     private void drawMessageText(GuiGraphicsExtractor context) {
@@ -117,8 +129,8 @@ public class ModMessageBanner implements Renderable, GuiEventListener {
         int maxTextWidth = width - UITheme.Dimensions.PADDING * 2 - CLOSE_BUTTON_SIZE - UITheme.Dimensions.PADDING;
         text = truncateText(text, maxTextWidth);
 
-        int textY = y + (BANNER_HEIGHT - UITheme.Typography.TEXT_HEIGHT) / 2;
-        context.text(client.font, text, x + UITheme.Dimensions.PADDING, textY, UITheme.Colors.TEXT_PRIMARY);
+        int textY = y + (BANNER_HEIGHT - UITheme.Typography.CAP_HEIGHT) / 2;
+        UIDraw.text(context, text, x + UITheme.Dimensions.PADDING, textY, UITheme.Colors.TEXT_PRIMARY);
     }
 
     private String truncateText(String text, int maxWidth) {
@@ -140,12 +152,8 @@ public class ModMessageBanner implements Renderable, GuiEventListener {
             context.fill(closeX, closeY, closeX + CLOSE_BUTTON_SIZE, closeY + CLOSE_BUTTON_SIZE, CLOSE_HOVER_COLOR);
         }
 
-        String closeText = "✕";
-        int closeTextWidth = client.font.width(closeText);
-        context.text(client.font, closeText,
-                closeX + (CLOSE_BUTTON_SIZE - closeTextWidth) / 2,
-                closeY + (CLOSE_BUTTON_SIZE - UITheme.Typography.TEXT_HEIGHT) / 2,
-                UITheme.Colors.TEXT_PRIMARY);
+        int closeColor = isOverCloseButton(mouseX, mouseY) ? UITheme.Colors.TEXT_HIGHLIGHT : UITheme.Colors.TEXT_MUTED;
+        UIIcon.CLOSE.drawCentered(context, closeX + CLOSE_BUTTON_SIZE / 2, closeY + CLOSE_BUTTON_SIZE / 2, closeColor);
     }
 
     private int getBackgroundColor(String type) {
@@ -166,6 +174,7 @@ public class ModMessageBanner implements Renderable, GuiEventListener {
         }
 
         if (isOverCloseButton(mouseX, mouseY)) {
+            UIDraw.playClick();
             visible = false;
             if (onDismiss != null && message != null) {
                 onDismiss.accept(message);

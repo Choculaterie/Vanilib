@@ -93,13 +93,15 @@ public class CardListWidget<T> implements Renderable, GuiEventListener {
 		int offsetY = (int) scrollAmount;
 		int currentY = 0;
 		int entryWidth = getEntryWidth();
+		boolean pointerInside = mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + height;
+		int entryMouseY = pointerInside ? mouseY : Integer.MIN_VALUE / 2;
 		for (CardEntryWidget<T> entry : entries) {
 			int entryY = y + currentY - offsetY;
 			if (isEntryVisible(entryY, entry.getHeight())) {
 				entry.setX(x);
 				entry.setY(entryY);
 				entry.setWidth(entryWidth);
-				entry.extractRenderState(context, mouseX, mouseY, delta);
+				entry.extractRenderState(context, mouseX, entryMouseY, delta);
 			}
 			currentY += entry.getHeight() + ENTRY_SPACING;
 		}

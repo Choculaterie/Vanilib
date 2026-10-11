@@ -1,5 +1,8 @@
 package com.choculaterie.vanilib.gui.widget;
 
+import com.choculaterie.vanilib.gui.theme.ButtonStyle;
+import com.choculaterie.vanilib.gui.theme.UIDraw;
+import com.choculaterie.vanilib.gui.theme.UIIcon;
 import com.choculaterie.vanilib.gui.theme.UITheme;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -91,6 +94,7 @@ public class TextInputPopup implements Renderable, GuiEventListener {
                 Component.literal(confirmButtonText),
                 button -> handleConfirm()
         );
+        confirmButton.setStyle(ButtonStyle.PRIMARY);
     }
 
     public void setErrorMessage(String error) {
@@ -217,25 +221,15 @@ public class TextInputPopup implements Renderable, GuiEventListener {
     }
 
     private void drawOverlay(GuiGraphicsExtractor context, Minecraft client) {
-        context.fill(0, 0, client.getWindow().getGuiScaledWidth(), client.getWindow().getGuiScaledHeight(), UITheme.Colors.OVERLAY_BG);
+        UIDraw.overlay(context);
     }
 
     private void drawPopupBackground(GuiGraphicsExtractor context) {
-        context.fill(x, y, x + POPUP_WIDTH, y + POPUP_HEIGHT, UITheme.Colors.BUTTON_BG_DISABLED);
-        context.fill(x, y, x + POPUP_WIDTH, y + UITheme.Dimensions.BORDER_WIDTH, UITheme.Colors.BUTTON_BORDER);
-        context.fill(x, y + POPUP_HEIGHT - UITheme.Dimensions.BORDER_WIDTH, x + POPUP_WIDTH, y + POPUP_HEIGHT, UITheme.Colors.BUTTON_BORDER);
-        context.fill(x, y, x + UITheme.Dimensions.BORDER_WIDTH, y + POPUP_HEIGHT, UITheme.Colors.BUTTON_BORDER);
-        context.fill(x + POPUP_WIDTH - UITheme.Dimensions.BORDER_WIDTH, y, x + POPUP_WIDTH, y + POPUP_HEIGHT, UITheme.Colors.BUTTON_BORDER);
+        UIDraw.modalFrame(context, x, y, POPUP_WIDTH, POPUP_HEIGHT);
     }
 
     private void drawTitle(GuiGraphicsExtractor context, Minecraft client) {
-        context.centeredText(
-                client.font,
-                title,
-                x + POPUP_WIDTH / 2,
-                y + UITheme.Dimensions.PADDING,
-                UITheme.Colors.TEXT_PRIMARY
-        );
+        UIDraw.modalTitle(context, title, x, y + UITheme.Dimensions.PADDING, POPUP_WIDTH);
     }
 
     private void drawErrorMessage(GuiGraphicsExtractor context, Minecraft client) {
@@ -243,13 +237,7 @@ public class TextInputPopup implements Renderable, GuiEventListener {
         int errorY = y + UITheme.Dimensions.PADDING * 3 + 25;
 
         for (String line : wrappedError) {
-            context.centeredText(
-                    client.font,
-                    line,
-                    x + POPUP_WIDTH / 2,
-                    errorY,
-                    UITheme.Colors.ERROR_TEXT
-            );
+            UIDraw.centeredText(context, line, x + POPUP_WIDTH / 2, errorY, UITheme.Colors.ERROR_TEXT);
             errorY += UITheme.Typography.LINE_HEIGHT - 2;
         }
     }
@@ -266,11 +254,15 @@ public class TextInputPopup implements Renderable, GuiEventListener {
         }
 
         if (isMouseOverWidget(cancelButton, mouseX, mouseY)) {
+
+            UIDraw.playClick();
             onCancel.run();
             return true;
         }
 
         if (isMouseOverWidget(confirmButton, mouseX, mouseY)) {
+
+            UIDraw.playClick();
             handleConfirm();
             return true;
         }
