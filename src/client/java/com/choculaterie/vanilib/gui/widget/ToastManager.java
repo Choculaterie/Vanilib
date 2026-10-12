@@ -159,7 +159,7 @@ public class ToastManager {
 			String textToCopy = toast.getCopyText();
 			if (client.keyboardHandler != null) {
 				client.keyboardHandler.setClipboard(textToCopy);
-				showSuccess("Error copied to clipboard!");
+				toast.markCopied();
 				return true;
 			}
 		}

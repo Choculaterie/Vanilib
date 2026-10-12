@@ -1,5 +1,6 @@
 package com.choculaterie.vanilib.gui.widget;
 
+import com.choculaterie.vanilib.gui.theme.ButtonStyle;
 import com.choculaterie.vanilib.gui.theme.UIDraw;
 import com.choculaterie.vanilib.gui.theme.UIIcon;
 import com.choculaterie.vanilib.gui.theme.UITheme;
@@ -24,7 +25,8 @@ public class Toast {
     private static final int CLOSE_BUTTON_SIZE  = 17;
     private static final int TEXT_LEFT          = 28;
     private static final int TEXT_RIGHT_GAP     = 6;
-    private static final int COPY_BUTTON_WIDTH  = 50;
+    private static final int COPY_BUTTON_WIDTH  = 56;
+    private static final long COPIED_MS         = 1500;
     private static final int COPY_BUTTON_HEIGHT = 19;
     private static final int Y_TRANSITION_DURATION = 400;
     private static final int TOAST_SPACING      = 5;
@@ -47,6 +49,7 @@ public class Toast {
     private boolean hovered;
     private long pausedTime;
     private long hoverStartTime;
+    private long copiedAt;
 
     public Toast(String message, Type type, int screenWidth, int yPosition) {
         this(message, type, screenWidth, yPosition, false, null);
@@ -147,6 +150,10 @@ public class Toast {
     public static void updateMousePosition(double x, double y) {
         mouseX = x;
         mouseY = y;
+    }
+
+    public void markCopied() {
+        this.copiedAt = System.currentTimeMillis();
     }
 
     public void dismiss() {
@@ -297,10 +304,6 @@ public class Toast {
         int closeX = currentX + TOAST_WIDTH - CLOSE_BUTTON_SIZE - BUTTON_SPACING;
         int closeY = yPosition + BUTTON_SPACING;
         boolean isHovered = isWithinBounds(mouseX, mouseY, closeX, closeY, CLOSE_BUTTON_SIZE, CLOSE_BUTTON_SIZE);
-        if (isHovered) {
-            context.fill(closeX, closeY, closeX + CLOSE_BUTTON_SIZE, closeY + CLOSE_BUTTON_SIZE,
-                    UIDraw.withAlpha(UITheme.Colors.SURFACE_HOVER, alpha));
-        }
         int color = isHovered ? UITheme.Colors.TEXT_HIGHLIGHT : UITheme.Colors.TEXT_MUTED;
         UIIcon.CLOSE.drawCentered(context, closeX + CLOSE_BUTTON_SIZE / 2, closeY + CLOSE_BUTTON_SIZE / 2, UIDraw.withAlpha(color, alpha));
     }
@@ -308,6 +311,15 @@ public class Toast {
     private void renderCopyButton(GuiGraphicsExtractor context, net.minecraft.client.gui.Font textRenderer, int currentX, int toastHeight, int alpha) {
         int copyX = currentX + TOAST_WIDTH - COPY_BUTTON_WIDTH - UITheme.Dimensions.PADDING_SMALL - 3;
         int copyY = yPosition + toastHeight - COPY_BUTTON_HEIGHT - 6;
+        if (copiedAt > 0 && System.currentTimeMillis() - copiedAt < COPIED_MS) {
+            int x2 = copyX + COPY_BUTTON_WIDTH, y2 = copyY + COPY_BUTTON_HEIGHT;
+            UIDraw.button(context, copyX, copyY, x2, y2, ButtonStyle.SUCCESS, true, false);
+            UIDraw.setShadowOverride(UIDraw.darken(ButtonStyle.SUCCESS.fill(true, false), 0.45f));
+            UIDraw.buttonContent(context, copyX, copyY, COPY_BUTTON_WIDTH, COPY_BUTTON_HEIGHT, UIIcon.CHECK, "Copied", UITheme.Colors.TEXT_HIGHLIGHT, true);
+            UIDraw.clearShadowOverride();
+            UIDraw.successFlash(context, copyX, copyY, x2, y2, copiedAt);
+            return;
+        }
         boolean isHovered = isWithinBounds(mouseX, mouseY, copyX, copyY, COPY_BUTTON_WIDTH, COPY_BUTTON_HEIGHT);
         int fill = UIDraw.withAlpha(isHovered ? UITheme.Colors.BUTTON_BG_HOVER : UITheme.Colors.BUTTON_BG, alpha);
         int border = UIDraw.withAlpha(isHovered ? UITheme.Colors.OUTLINE_HOVER : UITheme.Colors.OUTLINE, alpha);
