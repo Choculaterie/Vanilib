@@ -5,6 +5,7 @@ import com.choculaterie.vanilib.config.ConfigOption;
 import com.choculaterie.vanilib.config.ConfigType;
 import com.choculaterie.vanilib.config.OptionListConfig;
 import com.choculaterie.vanilib.gui.theme.UIDraw;
+import com.choculaterie.vanilib.gui.theme.UIIcon;
 import com.choculaterie.vanilib.gui.theme.UITheme;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -52,10 +53,11 @@ public class ConfigOptionWidget implements Renderable, GuiEventListener {
 		buildControl();
 
 		this.resetButton = new CustomButton(x + width - RESET_BUTTON_WIDTH, y, RESET_BUTTON_WIDTH, height,
-			Component.literal("↺"), b -> {
+			Component.empty(), b -> {
 				config.resetToDefault();
 				syncControlsFromValue();
 			});
+		this.resetButton.setIcon(UIIcon.REFRESH);
 	}
 
 	private void buildControl() {
@@ -96,11 +98,12 @@ public class ConfigOptionWidget implements Renderable, GuiEventListener {
 					dropdownWidget.open();
 				}
 			});
+		dropdownHeaderButton.setIcon(UIIcon.CHEVRON_DOWN).setIconAfterText(true);
 		updateOptionListHeader(optionList);
 	}
 
 	private <E> void updateOptionListHeader(OptionListConfig<E> optionList) {
-		dropdownHeaderButton.setMessage(Component.literal(optionList.getDisplayName(optionList.getValue()) + " ▼"));
+		dropdownHeaderButton.setMessage(Component.literal(optionList.getDisplayName(optionList.getValue())));
 	}
 
 	private void syncControlsFromValue() {
