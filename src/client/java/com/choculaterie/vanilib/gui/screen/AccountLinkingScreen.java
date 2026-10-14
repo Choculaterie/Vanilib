@@ -1,6 +1,7 @@
 package com.choculaterie.vanilib.gui.screen;
 
 import com.choculaterie.vanilib.gui.theme.ButtonStyle;
+import com.choculaterie.vanilib.gui.theme.UIIcon;
 import com.choculaterie.vanilib.gui.theme.UIDraw;
 import com.choculaterie.vanilib.gui.theme.UITheme;
 import com.choculaterie.vanilib.gui.widget.CustomButton;
@@ -51,7 +52,7 @@ public class AccountLinkingScreen extends Screen {
 			toastManager = new ToastManager(this.minecraft);
 		}
 
-		addRenderableWidget(new CustomButton(PADDING, PADDING, BTN_SIZE, BTN_SIZE, Component.literal("←"), b -> goBack()));
+		addRenderableWidget(new CustomButton(PADDING, PADDING, BTN_SIZE, BTN_SIZE, Component.empty(), b -> goBack()).setIcon(UIIcon.ARROW_LEFT));
 
 		boolean hasKey = context.hasApiKey();
 		int cx = this.width / 2, btnW = 100;

@@ -90,7 +90,7 @@ public class DirectoryPickerScreen extends Screen {
 		String selectLabel = isVeryCompact ? "Select" : (isCompact ? "Select Folder" : "Select This Folder");
 
 		this.addRenderableWidget(new CustomButton(PADDING, PADDING, BUTTON_HEIGHT, BUTTON_HEIGHT,
-			Component.literal("←"), button -> onClose()));
+			Component.empty(), button -> onClose()).setIcon(UIIcon.ARROW_LEFT));
 
 		this.addRenderableWidget(new CustomButton(PADDING * 2 + BUTTON_HEIGHT, PADDING, upButtonWidth, BUTTON_HEIGHT,
 			Component.literal(upLabel), button -> goUpDirectory()).setIcon(UIIcon.CHEVRON_UP));

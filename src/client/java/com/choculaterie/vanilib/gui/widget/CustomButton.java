@@ -12,8 +12,6 @@ public class CustomButton extends Button {
     private static final long SUCCESS_MS = 1500;
     private static final long ERROR_MS = 2500;
 
-    private boolean renderAsXIcon = false;
-    private boolean renderAsDownloadIcon = false;
     private ButtonStyle style = ButtonStyle.GRAY;
     private UIIcon icon;
     private boolean selected = false;
@@ -28,12 +26,14 @@ public class CustomButton extends Button {
         super(x, y, width, height, message, onPress, DEFAULT_NARRATION);
     }
 
+    @Deprecated
     public void setRenderAsXIcon(boolean renderAsXIcon) {
-        this.renderAsXIcon = renderAsXIcon;
+        if (renderAsXIcon) setIcon(UIIcon.CLOSE);
     }
 
+    @Deprecated
     public void setRenderAsDownloadIcon(boolean renderAsDownloadIcon) {
-        this.renderAsDownloadIcon = renderAsDownloadIcon;
+        if (renderAsDownloadIcon) setIcon(UIIcon.DOWNLOAD);
     }
 
     public CustomButton setStyle(ButtonStyle style) {
@@ -144,45 +144,10 @@ public class CustomButton extends Button {
         int color = contentColor(hovered);
         String label = getMessage().getString();
 
-        UIIcon shownIcon;
-        String text;
-        if (renderAsXIcon || renderAsDownloadIcon) {
-            shownIcon = renderAsXIcon ? UIIcon.CLOSE : UIIcon.DOWNLOAD;
-            text = "";
-        } else if (icon != null) {
-            shownIcon = icon;
-            text = label.isBlank() ? "" : label;
-        } else {
-            shownIcon = iconForLabel(label);
-            text = shownIcon != null ? "" : label;
-        }
+        String text = label.isBlank() ? "" : label;
 
         UIDraw.applyButtonShadow(style, this.active, hovered);
-        UIDraw.buttonContent(context, getX(), getY(), getWidth(), getHeight(), shownIcon, text, color, style != ButtonStyle.GHOST, iconAfterText);
+        UIDraw.buttonContent(context, getX(), getY(), getWidth(), getHeight(), icon, text, color, style != ButtonStyle.GHOST, iconAfterText);
         UIDraw.clearShadowOverride();
-    }
-
-    private static UIIcon iconForLabel(String label) {
-        return switch (label) {
-            case "X", "x", "✕", "✖", "×" -> UIIcon.CLOSE;
-            case "⚙" -> UIIcon.GEAR;
-            case "📁", "📂" -> UIIcon.FOLDER;
-            case "🔄", "↻", "⟳", "↺" -> UIIcon.REFRESH;
-            case "💾", "⬇", "⬇️" -> UIIcon.DOWNLOAD;
-            case "✏", "✏️" -> UIIcon.PENCIL;
-            case "📤" -> UIIcon.SHARE;
-            case "📷" -> UIIcon.CAMERA;
-            case "☰" -> UIIcon.LIST;
-            case "🔗" -> UIIcon.LINK;
-            case "📋" -> UIIcon.CLIPBOARD;
-            case "+" -> UIIcon.PLUS;
-            case "-", "−" -> UIIcon.MINUS;
-            case "🔍" -> UIIcon.SEARCH;
-            case "🗑" -> UIIcon.TRASH;
-            case "←", "<", "◀" -> UIIcon.ARROW_LEFT;
-            case "→", ">", "▶" -> UIIcon.ARROW_RIGHT;
-            case "✓", "✔" -> UIIcon.CHECK;
-            default -> null;
-        };
     }
 }

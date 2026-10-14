@@ -1,6 +1,7 @@
 package com.choculaterie.vanilib.gui.widget;
 
 import com.choculaterie.vanilib.gui.theme.UIDraw;
+import com.choculaterie.vanilib.gui.theme.UIIcon;
 import com.choculaterie.vanilib.gui.theme.UITheme;
 import net.minecraft.client.Minecraft;
 
@@ -69,8 +70,8 @@ public class ImageViewerWidget {
 
         if (closeButton == null) {
             closeButton = new CustomButton(closeX, closeY, UITheme.Dimensions.BUTTON_HEIGHT,
-                    UITheme.Dimensions.BUTTON_HEIGHT, Component.literal("×"), btn -> onClose.run());
-            closeButton.setRenderAsXIcon(true);
+                    UITheme.Dimensions.BUTTON_HEIGHT, Component.empty(), btn -> onClose.run());
+            closeButton.setIcon(UIIcon.CLOSE);
         } else {
             setButtonBounds(closeButton, closeX, closeY, UITheme.Dimensions.BUTTON_HEIGHT,
                     UITheme.Dimensions.BUTTON_HEIGHT);
@@ -86,7 +87,8 @@ public class ImageViewerWidget {
         int prevX = indicatorX - NAV_BUTTON_WIDTH - NAV_BUTTON_SPACING;
         if (prevButton == null) {
             prevButton = new CustomButton(prevX, navY, NAV_BUTTON_WIDTH, NAV_BUTTON_HEIGHT,
-                    Component.literal("<"), btn -> onPrevious.run());
+                    Component.empty(), btn -> onPrevious.run());
+            prevButton.setIcon(UIIcon.ARROW_LEFT);
         } else {
             setButtonBounds(prevButton, prevX, navY, NAV_BUTTON_WIDTH, NAV_BUTTON_HEIGHT);
         }
@@ -94,7 +96,8 @@ public class ImageViewerWidget {
         int nextX = indicatorX + indicatorWidth + NAV_BUTTON_SPACING;
         if (nextButton == null) {
             nextButton = new CustomButton(nextX, navY, NAV_BUTTON_WIDTH, NAV_BUTTON_HEIGHT,
-                    Component.literal(">"), btn -> onNext.run());
+                    Component.empty(), btn -> onNext.run());
+            nextButton.setIcon(UIIcon.ARROW_RIGHT);
         } else {
             setButtonBounds(nextButton, nextX, navY, NAV_BUTTON_WIDTH, NAV_BUTTON_HEIGHT);
         }
