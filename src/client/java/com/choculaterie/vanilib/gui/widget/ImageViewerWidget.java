@@ -21,6 +21,7 @@ public class ImageViewerWidget {
     private static final int NAV_BG_COLOR = 0xE01C181A;
 
     private final Identifier imageTexture;
+    private TextureSource textureSource;
     private final int originalImageWidth;
     private final int originalImageHeight;
     private final Runnable onClose;
@@ -51,6 +52,15 @@ public class ImageViewerWidget {
         this.onClose = onClose;
 
         updateLayout(client.getWindow().getGuiScaledWidth(), client.getWindow().getGuiScaledHeight());
+    }
+
+    public interface TextureSource {
+        Identifier textureFor(int pixelWidth, int pixelHeight);
+    }
+
+    public ImageViewerWidget setTextureSource(TextureSource textureSource) {
+        this.textureSource = textureSource;
+        return this;
     }
 
     public void updateLayout(int screenWidth, int screenHeight) {
@@ -124,10 +134,10 @@ public class ImageViewerWidget {
         int displayWidth, displayHeight;
 
         if (imageAspect > screenAspect) {
-            displayWidth = Math.min(maxWidth, originalImageWidth);
+            displayWidth = maxWidth;
             displayHeight = (int) (displayWidth / imageAspect);
         } else {
-            displayHeight = Math.min(maxHeight, originalImageHeight);
+            displayHeight = maxHeight;
             displayWidth = (int) (displayHeight * imageAspect);
         }
 
@@ -158,8 +168,15 @@ public class ImageViewerWidget {
 
         context.fill(0, 0, screenWidth, screenHeight, UITheme.Colors.BACKGROUND);
 
-        if (imageTexture != null) {
-            context.blit(imageTexture, imageX, imageY, imageX + displayWidth, imageY + displayHeight, 0.0f, 1.0f, 0.0f,
+        Identifier texture = imageTexture;
+        if (textureSource != null) {
+            double scale = client.getWindow().getGuiScale();
+            Identifier exact = textureSource.textureFor((int) Math.round(displayWidth * scale),
+                    (int) Math.round(displayHeight * scale));
+            if (exact != null) texture = exact;
+        }
+        if (texture != null) {
+            context.blit(texture, imageX, imageY, imageX + displayWidth, imageY + displayHeight, 0.0f, 1.0f, 0.0f,
                     1.0f);
         }
     }

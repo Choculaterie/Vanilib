@@ -92,7 +92,7 @@ public class DirectoryPickerScreen extends Screen {
 		this.addRenderableWidget(new CustomButton(PADDING, PADDING, BUTTON_HEIGHT, BUTTON_HEIGHT,
 			Component.empty(), button -> onClose()).setIcon(UIIcon.ARROW_LEFT));
 
-		this.addRenderableWidget(new CustomButton(PADDING * 2 + BUTTON_HEIGHT, PADDING, upButtonWidth, BUTTON_HEIGHT,
+		this.addRenderableWidget(new CustomButton(PADDING + BUTTON_HEIGHT + UITheme.Dimensions.HEADER_BUTTON_GAP, PADDING, upButtonWidth, BUTTON_HEIGHT,
 			Component.literal(upLabel), button -> goUpDirectory()).setIcon(UIIcon.CHEVRON_UP));
 
 		int listY = getListY();

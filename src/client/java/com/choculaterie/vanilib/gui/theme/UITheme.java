@@ -101,6 +101,8 @@ public final class UITheme {
 	public static final class Dimensions {
 		public static final int PADDING       = 10;
 		public static final int PADDING_SMALL = 5;
+		public static final int HEADER_BUTTON_GAP = 2;
+		public static final int BUTTON_GAP        = 4;
 		public static final int BORDER_WIDTH  = 1;
 
 		public static final int BUTTON_HEIGHT       = 21;
