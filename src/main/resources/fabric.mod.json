@@ -11,7 +11,7 @@
     "contact": {
         "sources": "https://github.com/Choculaterie/Vanilib"
     },
-    "license": "MIT",
+    "license": "AGPL-3.0-only",
     "icon": "assets/vanilib/icon.png",
     "environment": "client",
     "entrypoints": {
